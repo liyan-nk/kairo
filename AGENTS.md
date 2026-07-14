@@ -294,15 +294,24 @@ Always maintain:
 - Avoid premature optimization; optimize once a real bottleneck is
   measured, not guessed.
 
----
-
 ## 12. Git Workflow
 
 **Branches**
 `feature/`, `fix/`, `refactor/`, `docs/`
 
-**Commit style** (Conventional Commits)
-`feat:`, `fix:`, `refactor:`, `docs:`, `style:`
+**Commit Style** (Conventional Commits)
+`feat:`, `fix:`, `refactor:`, `docs:`, `style:`, `chore:`, `test:`
+
+**Commit Policy**
+After completing every logical unit of work (e.g., project scaffolding, folder structure changes, configuration, documentation updates, feature implementation, refactoring, bug fixes, testing, etc.), automatically create a Git commit.
+1. Run:
+   ```bash
+   git add .
+   git commit -m "<conventional commit message>"
+   ```
+2. Keep commits small, focused, and atomic. Each commit should represent a single logical change.
+3. If a task spans multiple independent logical changes, create multiple commits instead of one large commit.
+4. **Never run `git push`.** The user will always review and push commits manually.
 
 ---
 
