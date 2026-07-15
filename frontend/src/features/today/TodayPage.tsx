@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState } from 'react'
 import Typography from '../../components/Typography'
 import Skeleton from '../../components/Skeleton'
 import useToast from '../../hooks/useToast'
 import type { ViewState } from './types'
-import type { ClassItem, AttendanceSummary, CurrentClass, NextClass } from '../../lib/models'
-import { createTodayRepository } from '../../lib/repositories'
 import useTodayClock from './hooks/useTodayClock'
+import useToday from './hooks/useToday'
 import GreetingHeader from './components/GreetingHeader'
 import TodayEmptyState from './components/TodayEmptyState'
 import CurrentClassCard from './components/CurrentClassCard'
@@ -16,55 +15,19 @@ import AttendanceSummaryCard from './components/AttendanceSummaryCard'
 export const TodayPage: React.FC = () => {
   const { showToast } = useToast()
   const { simulatedMinutesLeft } = useTodayClock()
-
-  // Repository client factory
-  const repository = useMemo(() => createTodayRepository(), [])
+  const {
+    currentClass,
+    nextClass,
+    timeline,
+    attendanceSummary,
+    isLoading,
+    hasError,
+    reload,
+  } = useToday()
 
   // Dev-friendly state switcher toggle
   const [viewState, setViewState] = useState<ViewState>('active')
   const [attendance, setAttendance] = useState<'present' | 'absent' | null>(null)
-
-  // Asynchronous repository data states
-  const [currentClass, setCurrentClass] = useState<CurrentClass | null>(null)
-  const [nextClass, setNextClass] = useState<NextClass | null>(null)
-  const [timelineItems, setTimelineItems] = useState<ClassItem[]>([])
-  const [attendanceSummary, setAttendanceSummary] = useState<AttendanceSummary | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [hasError, setHasError] = useState(false)
-
-  useEffect(() => {
-    let active = true
-
-    const loadTimetable = async () => {
-      try {
-        const [curr, next, timeline, summary] = await Promise.all([
-          repository.getCurrentClass(),
-          repository.getNextClass(),
-          repository.getTimeline(),
-          repository.getAttendanceSummary(),
-        ])
-
-        if (active) {
-          setCurrentClass(curr)
-          setNextClass(next)
-          setTimelineItems(timeline)
-          setAttendanceSummary(summary)
-          setIsLoading(false)
-        }
-      } catch {
-        if (active) {
-          setHasError(true)
-          setIsLoading(false)
-        }
-      }
-    }
-
-    loadTimetable()
-
-    return () => {
-      active = false
-    }
-  }, [repository])
 
   const handleMarkAttendance = (status: 'present' | 'absent') => {
     setAttendance(status)
@@ -111,21 +74,7 @@ export const TodayPage: React.FC = () => {
       <div className="min-h-[70vh] flex items-center justify-center">
         <TodayEmptyState
           viewState={computedState}
-          onRetry={() => {
-            setViewState('active')
-            setIsLoading(true)
-            setHasError(false)
-            // Trigger retry by refreshing dependencies or direct function reload
-            repository.getCurrentClass()
-              .then(() => repository.getNextClass())
-              .then(() => repository.getTimeline())
-              .then(() => repository.getAttendanceSummary())
-              .then(() => setIsLoading(false))
-              .catch(() => {
-                setHasError(true)
-                setIsLoading(false)
-              })
-          }}
+          onRetry={reload}
         />
       </div>
     )
@@ -182,7 +131,7 @@ export const TodayPage: React.FC = () => {
           <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
             Today's Timeline
           </Typography>
-          <Timeline items={timelineItems} />
+          <Timeline items={timeline} />
         </section>
 
         {/* Attendance Summary Section */}
