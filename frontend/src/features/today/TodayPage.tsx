@@ -12,14 +12,15 @@ import CurrentClassCard from './components/CurrentClassCard'
 import NextClassCard from './components/NextClassCard'
 import Timeline from './components/Timeline'
 import AttendanceSummaryCard from './components/AttendanceSummaryCard'
+import { deriveTodayViewModel } from './utils/todayViewModel'
 
 export const TodayPage: React.FC = () => {
   const { showToast } = useToast()
   const { simulatedMinutesLeft } = useTodayClock()
   const {
-    currentClass,
-    nextClass,
-    timeline,
+    currentClass: realCurrentClass,
+    nextClass: realNextClass,
+    timeline: realTimeline,
     attendanceSummary,
     isLoading,
     hasError,
@@ -39,15 +40,22 @@ export const TodayPage: React.FC = () => {
   }
 
   // Determine if absolutely any cached/usable data is loaded in state
-  const hasUsableData = timeline.length > 0 || attendanceSummary !== null || currentClass !== null || nextClass !== null
+  const hasUsableData = realTimeline.length > 0 || attendanceSummary !== null || realCurrentClass !== null || realNextClass !== null
 
-  // Determine final render state (dev switcher overrides real async state for testing layout options)
-  const computedState = viewState !== 'active'
-    ? viewState
-    : (isLoading ? 'loading' : (hasError && !hasUsableData ? 'error' : 'active'))
+  // Compute presentation state using the pure view-model mapper
+  const viewModel = deriveTodayViewModel({
+    viewState,
+    isLoading,
+    hasError,
+    hasUsableData,
+    realCurrentClass,
+    realNextClass,
+    realTimeline,
+    realMinutesLeft: simulatedMinutesLeft,
+  })
 
   // Render Skeletons for Loading State
-  if (computedState === 'loading') {
+  if (viewModel.computedState === 'loading') {
     return (
       <div className="space-y-6">
         <header className="space-y-2">
@@ -73,30 +81,16 @@ export const TodayPage: React.FC = () => {
   }
 
   // Handle Full-Screen Empty and Error views (only unrecoverable errors)
-  const isFullScreenEmptyState = computedState === 'error'
-  if (isFullScreenEmptyState) {
+  if (viewModel.computedState === 'error') {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
         <TodayEmptyState
-          viewState={computedState}
+          viewState={viewModel.computedState}
           onRetry={reload}
         />
       </div>
     )
   }
-
-  // Simulate context-dependent Next Class properties under various states:
-  const displayNextClass = computedState === 'dayEnded'
-    ? {
-        subject: 'Compiler Design',
-        room: 'Lab 3',
-        faculty: 'Dr. Jenkins',
-        startTime: '09:00 AM (Tomorrow)'
-      }
-    : (computedState === 'holiday' ? null : nextClass)
-
-  // Clear timeline only during active holiday views
-  const displayTimeline = computedState === 'holiday' ? [] : timeline
 
   return (
     <div className="space-y-6 select-none animate-in fade-in duration-200">
@@ -122,15 +116,15 @@ export const TodayPage: React.FC = () => {
             Current Class
           </Typography>
           
-          {['holiday', 'dayEnded', 'beforeFirst', 'freePeriod'].includes(computedState) ? (
-            <TodayEmptyState viewState={computedState} className="my-0 max-w-none w-full" />
+          {['holiday', 'dayEnded', 'beforeFirst', 'freePeriod'].includes(viewModel.computedState) ? (
+            <TodayEmptyState viewState={viewModel.computedState} className="my-0 max-w-none w-full" />
           ) : (
-            currentClass && (
+            viewModel.currentClass && (
               <CurrentClassCard
-                subject={currentClass.subject}
-                room={currentClass.room}
-                faculty={currentClass.faculty}
-                minutesLeft={simulatedMinutesLeft}
+                subject={viewModel.currentClass.subject}
+                room={viewModel.currentClass.room}
+                faculty={viewModel.currentClass.faculty}
+                minutesLeft={viewModel.minutesLeft ?? simulatedMinutesLeft}
                 attendance={attendance}
                 onMarkAttendance={handleMarkAttendance}
                 onReportChange={() => showToast('Discrepancy Reported ✓')}
@@ -140,27 +134,27 @@ export const TodayPage: React.FC = () => {
         </section>
 
         {/* Next Class Section */}
-        {displayNextClass && (
+        {viewModel.nextClass && (
           <section className="space-y-2">
             <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
               Next Class
             </Typography>
             <NextClassCard
-              subject={displayNextClass.subject}
-              room={displayNextClass.room}
-              faculty={displayNextClass.faculty}
-              startTime={displayNextClass.startTime}
+              subject={viewModel.nextClass.subject}
+              room={viewModel.nextClass.room}
+              faculty={viewModel.nextClass.faculty}
+              startTime={viewModel.nextClass.startTime}
             />
           </section>
         )}
 
         {/* Today's Timeline Section */}
-        {displayTimeline.length > 0 && (
+        {viewModel.timeline.length > 0 && (
           <section className="space-y-3">
             <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
               Today's Timeline
             </Typography>
-            <Timeline items={displayTimeline} />
+            <Timeline items={viewModel.timeline} />
           </section>
         )}
 
