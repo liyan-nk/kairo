@@ -3,9 +3,20 @@ import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
+import ToastProvider from './app/ToastProvider'
+import ComponentPlayground from './dev/ComponentPlayground'
 
 function App() {
   const [count, setCount] = useState(0)
+
+  // Dev-only routing for Shared Design System primitives visual sandbox
+  if (import.meta.env.DEV) {
+    return (
+      <ToastProvider>
+        <ComponentPlayground />
+      </ToastProvider>
+    )
+  }
 
   return (
     <>
