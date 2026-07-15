@@ -16,25 +16,22 @@ export interface SubjectItemViewModel {
 
 export interface SubjectsViewModel {
   subjects: SubjectItemViewModel[]
-  overallPercentage: number
-  overallStatus: 'green' | 'yellow' | 'orange' | 'red'
-  overallStatusLabel: string
+  criticalCount: number
+  attentionCount: number
+  watchCount: number
+  safeCount: number
+  belowThresholdCount: number
 }
 
 /**
  * Pure function to derive all attendance health indicators, percentages,
  * warning labels, and aggregate stats from canonical subjects list.
+ * Sorts subjects by academic risk severity (Critical -> Attention -> Watch -> Safe).
  */
 export function deriveSubjectsViewModel(subjects: Subject[]): SubjectsViewModel {
-  let totalAttended = 0
-  let totalScheduled = 0
-
   const items = subjects.map((sub) => {
     const { totalClasses, attendedClasses } = sub
     const percentage = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0
-    
-    totalAttended += attendedClasses
-    totalScheduled += totalClasses
 
     let status: 'green' | 'yellow' | 'orange' | 'red'
     let statusLabel: string
@@ -48,7 +45,7 @@ export function deriveSubjectsViewModel(subjects: Subject[]): SubjectsViewModel 
       missCountText = maxMisses > 0 ? `Can miss ${maxMisses} class${maxMisses > 1 ? 'es' : ''}` : 'Attend next class'
     } else if (percentage >= 75) {
       status = 'yellow'
-      statusLabel = 'Watch Carefully'
+      statusLabel = 'Watch'
       missCountText = 'Attend next class'
     } else if (percentage >= 70) {
       status = 'orange'
@@ -77,28 +74,30 @@ export function deriveSubjectsViewModel(subjects: Subject[]): SubjectsViewModel 
     }
   })
 
-  const overallPercentage = totalScheduled > 0 ? Math.round((totalAttended / totalScheduled) * 100) : 0
-  let overallStatus: 'green' | 'yellow' | 'orange' | 'red'
-  let overallStatusLabel: string
-
-  if (overallPercentage >= 80) {
-    overallStatus = 'green'
-    overallStatusLabel = 'Comfortable'
-  } else if (overallPercentage >= 75) {
-    overallStatus = 'yellow'
-    overallStatusLabel = 'Watch carefully'
-  } else if (overallPercentage >= 70) {
-    overallStatus = 'orange'
-    overallStatusLabel = 'Needs attention'
-  } else {
-    overallStatus = 'red'
-    overallStatusLabel = 'Critical'
+  // Severity prioritization mapping: Critical (red) -> Needs Attention (orange) -> Watch (yellow) -> Safe (green)
+  const severityRank = {
+    red: 0,
+    orange: 1,
+    yellow: 2,
+    green: 3,
   }
+
+  // Sort subjects by severity
+  items.sort((a, b) => severityRank[a.status] - severityRank[b.status])
+
+  // Calculate status counts
+  const criticalCount = items.filter((item) => item.status === 'red').length
+  const attentionCount = items.filter((item) => item.status === 'orange').length
+  const watchCount = items.filter((item) => item.status === 'yellow').length
+  const safeCount = items.filter((item) => item.status === 'green').length
+  const belowThresholdCount = items.filter((item) => item.percentage < 75).length
 
   return {
     subjects: items,
-    overallPercentage,
-    overallStatus,
-    overallStatusLabel,
+    criticalCount,
+    attentionCount,
+    watchCount,
+    safeCount,
+    belowThresholdCount,
   }
 }
