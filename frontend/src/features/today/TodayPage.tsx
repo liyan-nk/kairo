@@ -1,41 +1,29 @@
 import React, { useState } from 'react'
-import { Calendar, Clock, Coffee, Sunset, AlertCircle } from 'lucide-react'
 import Typography from '../../components/Typography'
-import Card from '../../components/Card'
 import Skeleton from '../../components/Skeleton'
-import EmptyState from '../../components/EmptyState'
 import useToast from '../../hooks/useToast'
+import type { ViewState } from './types'
+import {
+  getMockCurrentClass,
+  getMockNextClass,
+  getMockTimeline,
+  getMockAttendanceSummary,
+} from './data/mockToday'
+import useTodayClock from './hooks/useTodayClock'
+import GreetingHeader from './components/GreetingHeader'
+import TodayEmptyState from './components/TodayEmptyState'
 import CurrentClassCard from './components/CurrentClassCard'
+import NextClassCard from './components/NextClassCard'
 import Timeline from './components/Timeline'
 import AttendanceSummaryCard from './components/AttendanceSummaryCard'
-import useTodayClock from './hooks/useTodayClock'
-
-type ViewState = 'active' | 'loading' | 'holiday' | 'beforeFirst' | 'freePeriod' | 'dayEnded' | 'error'
 
 export const TodayPage: React.FC = () => {
   const { showToast } = useToast()
   const { simulatedMinutesLeft } = useTodayClock()
-  
+
   // Dev-friendly state toggle for previewing empty/loading conditions
   const [viewState, setViewState] = useState<ViewState>('active')
   const [attendance, setAttendance] = useState<'present' | 'absent' | null>(null)
-
-  // Get contextual greeting based on current time
-  const getGreeting = (): string => {
-    const hour = new Date().getHours()
-    if (hour < 12) return 'Good Morning'
-    if (hour < 18) return 'Good Afternoon'
-    return 'Good Evening'
-  }
-
-  // Get formatted day & date (e.g., "Wednesday, July 15")
-  const getFormattedDate = (): string => {
-    return new Date().toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
 
   const handleMarkAttendance = (status: 'present' | 'absent') => {
     setAttendance(status)
@@ -45,6 +33,11 @@ export const TodayPage: React.FC = () => {
     }
   }
 
+  // Retrieve isolated mock data
+  const currentClass = getMockCurrentClass()
+  const nextClass = getMockNextClass()
+  const timelineItems = getMockTimeline()
+  const attendanceSummary = getMockAttendanceSummary()
 
   // Render Skeletons for Loading State
   if (viewState === 'loading') {
@@ -72,55 +65,15 @@ export const TodayPage: React.FC = () => {
     )
   }
 
-  // Render Full Screen Error State
-  if (viewState === 'error') {
+  // Handle Full-Screen Empty and Error views:
+  // 'error' | 'holiday' | 'dayEnded' | 'beforeFirst'
+  const isFullScreenEmptyState = ['error', 'holiday', 'dayEnded', 'beforeFirst'].includes(viewState)
+  if (isFullScreenEmptyState) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
-        <EmptyState
-          icon={<AlertCircle className="text-brand-danger" />}
-          title="Unable to Load Timetable"
-          description="Something went wrong. Please check your connection and try again."
-          actionLabel="Retry"
-          onAction={() => setViewState('active')}
-        />
-      </div>
-    )
-  }
-
-  // Render Full Screen Holiday / No Timetable State
-  if (viewState === 'holiday') {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <EmptyState
-          icon={<Calendar className="text-brand-info" />}
-          title="No Classes Scheduled"
-          description="Enjoy your day off!"
-        />
-      </div>
-    )
-  }
-
-  // Render Full Screen Day Ended State
-  if (viewState === 'dayEnded') {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <EmptyState
-          icon={<Sunset className="text-brand-info" />}
-          title="Classes Ended"
-          description="Classes ended for today — have a great evening!"
-        />
-      </div>
-    )
-  }
-
-  // Render Full Screen Before First Class State
-  if (viewState === 'beforeFirst') {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <EmptyState
-          icon={<Clock className="text-brand-info" />}
-          title="Morning Schedule"
-          description="Your first class starts at 9:00 AM."
+        <TodayEmptyState
+          viewState={viewState}
+          onRetry={() => setViewState('active')}
         />
       </div>
     )
@@ -129,14 +82,7 @@ export const TodayPage: React.FC = () => {
   return (
     <div className="space-y-6 select-none animate-in fade-in duration-200">
       {/* Dynamic Header */}
-      <header className="space-y-1">
-        <Typography variant="h2" weight="bold">
-          {getGreeting()}
-        </Typography>
-        <Typography variant="body" color="secondary">
-          {getFormattedDate()}
-        </Typography>
-      </header>
+      <GreetingHeader />
 
       {/* Main Content Areas */}
       <div className="space-y-6">
@@ -148,16 +94,12 @@ export const TodayPage: React.FC = () => {
           </Typography>
           
           {viewState === 'freePeriod' ? (
-            <EmptyState
-              icon={<Coffee className="text-brand-info" />}
-              title="No Class Right Now"
-              description="Your next class starts at 11:15 AM."
-            />
+            <TodayEmptyState viewState="freePeriod" />
           ) : (
             <CurrentClassCard
-              subject="Java Programming"
-              room="Room 404"
-              faculty="Dr. Sarah Jenkins"
+              subject={currentClass.subject}
+              room={currentClass.room}
+              faculty={currentClass.faculty}
               minutesLeft={simulatedMinutesLeft}
               attendance={attendance}
               onMarkAttendance={handleMarkAttendance}
@@ -171,26 +113,12 @@ export const TodayPage: React.FC = () => {
           <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
             Next Class
           </Typography>
-          <Card variant="outline" padding="md">
-            <div className="flex justify-between items-start">
-              <div className="space-y-1">
-                <Typography variant="title" weight="semibold">
-                  Database Management Systems
-                </Typography>
-                <Typography variant="caption" color="secondary">
-                  Prof. Alok Verma · Room 102
-                </Typography>
-              </div>
-              <div className="text-right shrink-0">
-                <Typography variant="body" weight="semibold" className="text-text-primary">
-                  11:15 AM
-                </Typography>
-                <Typography variant="micro" color="secondary" className="block mt-0.5">
-                  starts
-                </Typography>
-              </div>
-            </div>
-          </Card>
+          <NextClassCard
+            subject={nextClass.subject}
+            room={nextClass.room}
+            faculty={nextClass.faculty}
+            startTime={nextClass.startTime}
+          />
         </section>
 
         {/* Today's Timeline Section */}
@@ -198,15 +126,7 @@ export const TodayPage: React.FC = () => {
           <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
             Today's Timeline
           </Typography>
-          <Timeline
-            items={[
-              { id: '1', subject: 'Java Programming', time: '09:00 AM - 10:00 AM', status: 'completed' as const },
-              { id: '2', subject: 'Database Management Systems', time: '10:00 AM - 11:00 AM', status: 'current' as const },
-              { id: '3', subject: 'Morning Break', time: '11:00 AM - 11:15 AM', status: 'upcoming' as const },
-              { id: '4', subject: 'Operating Systems', time: '11:15 AM - 12:15 PM', status: 'upcoming' as const },
-              { id: '5', subject: 'Computer Networks', time: '12:15 PM - 01:15 PM', status: 'upcoming' as const },
-            ]}
-          />
+          <Timeline items={timelineItems} />
         </section>
 
         {/* Attendance Summary Section */}
@@ -215,8 +135,8 @@ export const TodayPage: React.FC = () => {
             Attendance Summary
           </Typography>
           <AttendanceSummaryCard
-            status="Watch Carefully"
-            percentage={78}
+            status={attendanceSummary.status}
+            percentage={attendanceSummary.percentage}
           />
         </section>
       </div>
