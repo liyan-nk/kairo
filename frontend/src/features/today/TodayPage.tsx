@@ -1,13 +1,12 @@
-import React, { useState, useEffect, Fragment } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Calendar, Clock, Coffee, Sunset, AlertCircle } from 'lucide-react'
 import Typography from '../../components/Typography'
 import Card from '../../components/Card'
-import Badge from '../../components/Badge'
-import Divider from '../../components/Divider'
 import Skeleton from '../../components/Skeleton'
 import EmptyState from '../../components/EmptyState'
 import useToast from '../../hooks/useToast'
 import CurrentClassCard from './components/CurrentClassCard'
+import Timeline from './components/Timeline'
 
 type ViewState = 'active' | 'loading' | 'holiday' | 'beforeFirst' | 'freePeriod' | 'dayEnded' | 'error'
 
@@ -211,50 +210,15 @@ export const TodayPage: React.FC = () => {
           <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
             Today's Timeline
           </Typography>
-          <div className="bg-surface rounded-medium border border-border-card p-4 space-y-4">
-            {[
+          <Timeline
+            items={[
               { id: '1', subject: 'Java Programming', time: '09:00 AM - 10:00 AM', status: 'completed' as const },
               { id: '2', subject: 'Database Management Systems', time: '10:00 AM - 11:00 AM', status: 'current' as const },
               { id: '3', subject: 'Morning Break', time: '11:00 AM - 11:15 AM', status: 'upcoming' as const },
               { id: '4', subject: 'Operating Systems', time: '11:15 AM - 12:15 PM', status: 'upcoming' as const },
               { id: '5', subject: 'Computer Networks', time: '12:15 PM - 01:15 PM', status: 'upcoming' as const },
-            ].map((item, idx, arr) => (
-              <Fragment key={item.id}>
-                <div className="flex items-center justify-between py-1">
-                  <div className="space-y-1">
-                    <Typography
-                      variant="body"
-                      weight={item.status === 'current' ? 'semibold' : 'normal'}
-                      color={item.status === 'completed' ? 'secondary' : 'primary'}
-                    >
-                      {item.subject}
-                    </Typography>
-                    <Typography variant="caption" color="secondary">
-                      {item.time}
-                    </Typography>
-                  </div>
-                  <div>
-                    {item.status === 'completed' && (
-                      <Badge variant="filled" color="secondary">
-                        Completed
-                      </Badge>
-                    )}
-                    {item.status === 'current' && (
-                      <Badge variant="filled" color="primary">
-                        Current
-                      </Badge>
-                    )}
-                    {item.status === 'upcoming' && (
-                      <Badge variant="outlined" color="secondary">
-                        Upcoming
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-                {idx < arr.length - 1 && <Divider />}
-              </Fragment>
-            ))}
-          </div>
+            ]}
+          />
         </section>
 
         {/* Attendance Summary Section */}
