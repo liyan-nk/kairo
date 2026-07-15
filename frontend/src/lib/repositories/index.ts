@@ -1,4 +1,4 @@
-import { MockTodayRepository } from '../providers/MockTodayRepository'
+import { IndexedDbTodayRepository } from '../providers/IndexedDbTodayRepository'
 import type { TodayRepository } from './TodayRepository'
 
 export * from './TodayRepository'
@@ -11,5 +11,5 @@ export * from './ProfileRepository'
  * Prepares TodayPage dependency injection.
  */
 export const createTodayRepository = (): TodayRepository => {
-  return new MockTodayRepository()
+  return new IndexedDbTodayRepository()
 }
