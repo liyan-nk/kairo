@@ -29,7 +29,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
 }) => {
   return (
     <nav
-      className={`fixed bottom-0 left-0 right-0 h-[64px] bg-surface border-t border-border-card flex items-center justify-around z-40 select-none pb-safe ${className}`}
+      className={`fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto w-full h-[64px] bg-surface border-t border-x border-border-card flex items-center justify-around z-40 select-none pb-safe ${className}`}
     >
       {navItems.map((item) => {
         const Icon = item.icon
