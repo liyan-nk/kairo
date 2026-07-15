@@ -33,9 +33,9 @@ export const IconButton: React.FC<IconButtonProps> = ({
   }
 
   const sizeStyles: Record<IconButtonSize, string> = {
-    sm: 'w-[40px] h-[40px]',
-    md: 'w-[44px] h-[44px]',
-    lg: 'w-[48px] h-[48px]',
+    sm: 'w-[44px] h-[44px]',
+    md: 'w-[48px] h-[48px]',
+    lg: 'w-[52px] h-[52px]',
   }
 
   const classes = [
