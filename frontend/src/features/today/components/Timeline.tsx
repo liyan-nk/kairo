@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react'
 import Divider from '../../../components/Divider'
 import TimelineItem from './TimelineItem'
-import type { ClassItem } from '../types'
+import type { ClassItem } from '../../../lib/models'
 
 interface TimelineProps {
   items: ClassItem[]

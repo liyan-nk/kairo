@@ -1,4 +1,4 @@
-import type { ClassItem, AttendanceSummary } from '../types'
+import type { ClassItem, AttendanceSummary } from '../../../lib/models'
 
 export const getMockCurrentClass = () => {
   return {

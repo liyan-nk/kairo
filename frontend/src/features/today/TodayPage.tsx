@@ -1,14 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import Typography from '../../components/Typography'
 import Skeleton from '../../components/Skeleton'
 import useToast from '../../hooks/useToast'
 import type { ViewState } from './types'
-import {
-  getMockCurrentClass,
-  getMockNextClass,
-  getMockTimeline,
-  getMockAttendanceSummary,
-} from './data/mockToday'
+import type { ClassItem, AttendanceSummary, CurrentClass, NextClass } from '../../lib/models'
+import { createTodayRepository } from '../../lib/repositories'
 import useTodayClock from './hooks/useTodayClock'
 import GreetingHeader from './components/GreetingHeader'
 import TodayEmptyState from './components/TodayEmptyState'
@@ -21,9 +17,56 @@ export const TodayPage: React.FC = () => {
   const { showToast } = useToast()
   const { simulatedMinutesLeft } = useTodayClock()
 
-  // Dev-friendly state toggle for previewing empty/loading conditions
+  // Repository client factory
+  const repository = useMemo(() => createTodayRepository(), [])
+
+  // Dev-friendly state switcher toggle
   const [viewState, setViewState] = useState<ViewState>('active')
   const [attendance, setAttendance] = useState<'present' | 'absent' | null>(null)
+
+  // Asynchronous repository data states
+  const [currentClass, setCurrentClass] = useState<CurrentClass | null>(null)
+  const [nextClass, setNextClass] = useState<NextClass | null>(null)
+  const [timelineItems, setTimelineItems] = useState<ClassItem[]>([])
+  const [attendanceSummary, setAttendanceSummary] = useState<AttendanceSummary | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [hasError, setHasError] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    setIsLoading(true)
+    setHasError(false)
+
+    const loadTimetable = async () => {
+      try {
+        const [curr, next, timeline, summary] = await Promise.all([
+          repository.getCurrentClass(),
+          repository.getNextClass(),
+          repository.getTimeline(),
+          repository.getAttendanceSummary(),
+        ])
+
+        if (active) {
+          setCurrentClass(curr);
+          setNextClass(next);
+          setTimelineItems(timeline);
+          setAttendanceSummary(summary);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        if (active) {
+          setHasError(true);
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadTimetable()
+
+    return () => {
+      active = false
+    }
+  }, [repository])
 
   const handleMarkAttendance = (status: 'present' | 'absent') => {
     setAttendance(status)
@@ -33,14 +76,11 @@ export const TodayPage: React.FC = () => {
     }
   }
 
-  // Retrieve isolated mock data
-  const currentClass = getMockCurrentClass()
-  const nextClass = getMockNextClass()
-  const timelineItems = getMockTimeline()
-  const attendanceSummary = getMockAttendanceSummary()
+  // Determine final render state (dev switcher overrides real async state for testing layout options)
+  const computedState = viewState !== 'active' ? viewState : (hasError ? 'error' : (isLoading ? 'loading' : 'active'))
 
   // Render Skeletons for Loading State
-  if (viewState === 'loading') {
+  if (computedState === 'loading') {
     return (
       <div className="space-y-6">
         <header className="space-y-2">
@@ -67,13 +107,27 @@ export const TodayPage: React.FC = () => {
 
   // Handle Full-Screen Empty and Error views:
   // 'error' | 'holiday' | 'dayEnded' | 'beforeFirst'
-  const isFullScreenEmptyState = ['error', 'holiday', 'dayEnded', 'beforeFirst'].includes(viewState)
+  const isFullScreenEmptyState = ['error', 'holiday', 'dayEnded', 'beforeFirst'].includes(computedState)
   if (isFullScreenEmptyState) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
         <TodayEmptyState
-          viewState={viewState}
-          onRetry={() => setViewState('active')}
+          viewState={computedState}
+          onRetry={() => {
+            setViewState('active')
+            setIsLoading(true)
+            setHasError(false)
+            // Trigger retry by refreshing dependencies or direct function reload
+            repository.getCurrentClass()
+              .then(() => repository.getNextClass())
+              .then(() => repository.getTimeline())
+              .then(() => repository.getAttendanceSummary())
+              .then(() => setIsLoading(false))
+              .catch(() => {
+                setHasError(true)
+                setIsLoading(false)
+              })
+          }}
         />
       </div>
     )
@@ -93,18 +147,20 @@ export const TodayPage: React.FC = () => {
             Current Class
           </Typography>
           
-          {viewState === 'freePeriod' ? (
+          {computedState === 'freePeriod' ? (
             <TodayEmptyState viewState="freePeriod" />
           ) : (
-            <CurrentClassCard
-              subject={currentClass.subject}
-              room={currentClass.room}
-              faculty={currentClass.faculty}
-              minutesLeft={simulatedMinutesLeft}
-              attendance={attendance}
-              onMarkAttendance={handleMarkAttendance}
-              onReportChange={() => showToast('Discrepancy Reported ✓')}
-            />
+            currentClass && (
+              <CurrentClassCard
+                subject={currentClass.subject}
+                room={currentClass.room}
+                faculty={currentClass.faculty}
+                minutesLeft={simulatedMinutesLeft}
+                attendance={attendance}
+                onMarkAttendance={handleMarkAttendance}
+                onReportChange={() => showToast('Discrepancy Reported ✓')}
+              />
+            )
           )}
         </section>
 
@@ -113,12 +169,14 @@ export const TodayPage: React.FC = () => {
           <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
             Next Class
           </Typography>
-          <NextClassCard
-            subject={nextClass.subject}
-            room={nextClass.room}
-            faculty={nextClass.faculty}
-            startTime={nextClass.startTime}
-          />
+          {nextClass && (
+            <NextClassCard
+              subject={nextClass.subject}
+              room={nextClass.room}
+              faculty={nextClass.faculty}
+              startTime={nextClass.startTime}
+            />
+          )}
         </section>
 
         {/* Today's Timeline Section */}
@@ -134,10 +192,12 @@ export const TodayPage: React.FC = () => {
           <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
             Attendance Summary
           </Typography>
-          <AttendanceSummaryCard
-            status={attendanceSummary.status}
-            percentage={attendanceSummary.percentage}
-          />
+          {attendanceSummary && (
+            <AttendanceSummaryCard
+              status={attendanceSummary.status}
+              percentage={attendanceSummary.percentage}
+            />
+          )}
         </section>
       </div>
 
