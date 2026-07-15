@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Calendar, Clock, Coffee, Sunset, AlertCircle } from 'lucide-react'
 import Typography from '../../components/Typography'
 import Card from '../../components/Card'
@@ -8,26 +8,17 @@ import useToast from '../../hooks/useToast'
 import CurrentClassCard from './components/CurrentClassCard'
 import Timeline from './components/Timeline'
 import AttendanceSummaryCard from './components/AttendanceSummaryCard'
+import useTodayClock from './hooks/useTodayClock'
 
 type ViewState = 'active' | 'loading' | 'holiday' | 'beforeFirst' | 'freePeriod' | 'dayEnded' | 'error'
 
 export const TodayPage: React.FC = () => {
   const { showToast } = useToast()
+  const { simulatedMinutesLeft } = useTodayClock()
   
   // Dev-friendly state toggle for previewing empty/loading conditions
   const [viewState, setViewState] = useState<ViewState>('active')
   const [attendance, setAttendance] = useState<'present' | 'absent' | null>(null)
-
-  // Live timer simulation states
-  const [elapsedSeconds, setElapsedSeconds] = useState(0)
-
-  // Run a client-side ticking timer once a second to drive the countdown
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setElapsedSeconds((prev) => prev + 1)
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [])
 
   // Get contextual greeting based on current time
   const getGreeting = (): string => {
@@ -54,10 +45,6 @@ export const TodayPage: React.FC = () => {
     }
   }
 
-  // Calculate live countdown based on simulated start point of 10:18 AM
-  // 10:18 AM is 618 minutes from midnight. End of class is 11:00 AM (660 minutes).
-  const totalElapsedMinutes = Math.floor(elapsedSeconds / 60)
-  const simulatedMinutesLeft = Math.max(0, 660 - (618 + totalElapsedMinutes))
 
   // Render Skeletons for Loading State
   if (viewState === 'loading') {
