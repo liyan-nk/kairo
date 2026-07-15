@@ -1,7 +1,7 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import RootLayout from '../components/RootLayout'
-import TodayPage from '../features/TodayPage'
+import TodayPage from '../features/today/TodayPage'
 import SubjectsPage from '../features/SubjectsPage'
 import CampusPage from '../features/CampusPage'
 import ProfilePage from '../features/ProfilePage'
