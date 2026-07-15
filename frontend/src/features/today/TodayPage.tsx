@@ -7,6 +7,7 @@ import EmptyState from '../../components/EmptyState'
 import useToast from '../../hooks/useToast'
 import CurrentClassCard from './components/CurrentClassCard'
 import Timeline from './components/Timeline'
+import AttendanceSummaryCard from './components/AttendanceSummaryCard'
 
 type ViewState = 'active' | 'loading' | 'holiday' | 'beforeFirst' | 'freePeriod' | 'dayEnded' | 'error'
 
@@ -226,20 +227,10 @@ export const TodayPage: React.FC = () => {
           <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
             Attendance Summary
           </Typography>
-          <Card variant="default" padding="md" className="space-y-3">
-            <div className="flex justify-between items-baseline">
-              <Typography variant="title" weight="bold" className="text-brand-warning">
-                Watch Carefully
-              </Typography>
-              <Typography variant="title" weight="bold">
-                78%
-              </Typography>
-            </div>
-            {/* Horizontal progress indicator */}
-            <div className="w-full h-2 bg-border-card rounded-pill overflow-hidden">
-              <div className="h-full bg-brand-warning rounded-pill" style={{ width: '78%' }} />
-            </div>
-          </Card>
+          <AttendanceSummaryCard
+            status="Watch Carefully"
+            percentage={78}
+          />
         </section>
       </div>
 
