@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import { Calendar, Clock, Coffee, Sunset, AlertCircle } from 'lucide-react'
 import Typography from '../components/Typography'
 import Card from '../components/Card'
@@ -22,7 +22,7 @@ export const TodayPage: React.FC = () => {
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
 
   // Run a client-side ticking timer once a second to drive the countdown
-  React.useEffect(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       setElapsedSeconds((prev) => prev + 1)
     }, 1000)
@@ -257,7 +257,7 @@ export const TodayPage: React.FC = () => {
               { id: '4', subject: 'Operating Systems', time: '11:15 AM - 12:15 PM', status: 'upcoming' as const },
               { id: '5', subject: 'Computer Networks', time: '12:15 PM - 01:15 PM', status: 'upcoming' as const },
             ].map((item, idx, arr) => (
-              <React.Fragment key={item.id}>
+              <Fragment key={item.id}>
                 <div className="flex items-center justify-between py-1">
                   <div className="space-y-1">
                     <Typography
@@ -290,7 +290,7 @@ export const TodayPage: React.FC = () => {
                   </div>
                 </div>
                 {idx < arr.length - 1 && <Divider />}
-              </React.Fragment>
+              </Fragment>
             ))}
           </div>
         </section>
