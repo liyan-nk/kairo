@@ -12,7 +12,7 @@ export class Database {
 
       request.onupgradeneeded = (event) => {
         const db = request.result
-        initDatabase(db, event.oldVersion, event.newVersion ?? DB_VERSION)
+        initDatabase(db, event.oldVersion)
       }
 
       request.onsuccess = () => {
