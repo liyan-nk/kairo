@@ -2,12 +2,12 @@ import React, { useState, useEffect, Fragment } from 'react'
 import { Calendar, Clock, Coffee, Sunset, AlertCircle } from 'lucide-react'
 import Typography from '../../components/Typography'
 import Card from '../../components/Card'
-import Button from '../../components/Button'
 import Badge from '../../components/Badge'
 import Divider from '../../components/Divider'
 import Skeleton from '../../components/Skeleton'
 import EmptyState from '../../components/EmptyState'
 import useToast from '../../hooks/useToast'
+import CurrentClassCard from './components/CurrentClassCard'
 
 type ViewState = 'active' | 'loading' | 'holiday' | 'beforeFirst' | 'freePeriod' | 'dayEnded' | 'error'
 
@@ -167,53 +167,15 @@ export const TodayPage: React.FC = () => {
               description="Your next class starts at 11:15 AM."
             />
           ) : (
-            <Card variant="default" padding="lg" className="space-y-4">
-              <div className="flex justify-between items-start">
-                <div className="space-y-1 pr-4">
-                  <Typography variant="title" weight="bold" className="leading-tight">
-                    Java Programming
-                  </Typography>
-                  <Typography variant="caption" color="secondary">
-                    Dr. Sarah Jenkins · Room 404
-                  </Typography>
-                </div>
-                <div className="text-right shrink-0">
-                  <Typography variant="h3" weight="bold" className="text-brand-info leading-none">
-                    {simulatedMinutesLeft}m
-                  </Typography>
-                  <Typography variant="micro" color="secondary" className="block mt-1">
-                    remaining
-                  </Typography>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Button
-                  variant={attendance === 'present' ? 'primary' : 'secondary'}
-                  fullWidth
-                  onClick={() => handleMarkAttendance('present')}
-                >
-                  Present
-                </Button>
-                <Button
-                  variant={attendance === 'absent' ? 'danger' : 'secondary'}
-                  fullWidth
-                  onClick={() => handleMarkAttendance('absent')}
-                >
-                  Absent
-                </Button>
-              </div>
-
-              <div className="text-center pt-1">
-                <button
-                  type="button"
-                  onClick={() => showToast('Discrepancy Reported ✓')}
-                  className="text-text-secondary hover:text-text-primary text-[14px] font-medium transition-colors cursor-pointer outline-none rounded-small focus-visible:ring-1 focus-visible:ring-brand-info px-2 py-1"
-                >
-                  Report Change
-                </button>
-              </div>
-            </Card>
+            <CurrentClassCard
+              subject="Java Programming"
+              room="Room 404"
+              faculty="Dr. Sarah Jenkins"
+              minutesLeft={simulatedMinutesLeft}
+              attendance={attendance}
+              onMarkAttendance={handleMarkAttendance}
+              onReportChange={() => showToast('Discrepancy Reported ✓')}
+            />
           )}
         </section>
 
