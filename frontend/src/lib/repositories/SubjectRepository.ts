@@ -1,8 +1,8 @@
-/**
- * TODO: Define operations for fetching academic subjects and official attendance statistics.
- * This will be implemented in subsequent phases.
- */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+import type { Subject } from '../models'
+
 export interface SubjectRepository {
-  // TODO: Add operations for subject-level feature interactions.
+  getSubjects(): Promise<Subject[]>
+  getSubject(id: string): Promise<Subject | null>
+  saveSubject(subject: Subject): Promise<void>
+  updateAttendance(id: string, attendedClasses: number, totalClasses: number): Promise<void>
 }
