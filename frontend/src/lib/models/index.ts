@@ -24,3 +24,13 @@ export interface NextClass {
   faculty: string
   startTime: string
 }
+
+export interface Subject {
+  id: string
+  code: string
+  name: string
+  faculty: string
+  room: string
+  attendedClasses: number
+  totalClasses: number
+}
