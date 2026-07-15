@@ -16,16 +16,40 @@ export const useToday = () => {
     setIsLoading(true)
     setHasError(false)
     try {
-      const [curr, next, tl, summary] = await Promise.all([
+      const [currRes, nextRes, tlRes, summaryRes] = await Promise.allSettled([
         repository.getCurrentClass(),
         repository.getNextClass(),
         repository.getTimeline(),
         repository.getAttendanceSummary(),
       ])
-      setCurrentClass(curr)
-      setNextClass(next)
-      setTimeline(tl)
-      setAttendanceSummary(summary)
+
+      let anyFailure = false
+
+      if (currRes.status === 'fulfilled') {
+        setCurrentClass(currRes.value)
+      } else {
+        anyFailure = true
+      }
+
+      if (nextRes.status === 'fulfilled') {
+        setNextClass(nextRes.value)
+      } else {
+        anyFailure = true
+      }
+
+      if (tlRes.status === 'fulfilled') {
+        setTimeline(tlRes.value)
+      } else {
+        anyFailure = true
+      }
+
+      if (summaryRes.status === 'fulfilled') {
+        setAttendanceSummary(summaryRes.value)
+      } else {
+        anyFailure = true
+      }
+
+      setHasError(anyFailure)
       setIsLoading(false)
     } catch {
       setHasError(true)
@@ -38,19 +62,43 @@ export const useToday = () => {
 
     const fetchData = async () => {
       try {
-        const [curr, next, tl, summary] = await Promise.all([
+        const [currRes, nextRes, tlRes, summaryRes] = await Promise.allSettled([
           repository.getCurrentClass(),
           repository.getNextClass(),
           repository.getTimeline(),
           repository.getAttendanceSummary(),
         ])
-        if (active) {
-          setCurrentClass(curr)
-          setNextClass(next)
-          setTimeline(tl)
-          setAttendanceSummary(summary)
-          setIsLoading(false)
+
+        if (!active) return
+
+        let anyFailure = false
+
+        if (currRes.status === 'fulfilled') {
+          setCurrentClass(currRes.value)
+        } else {
+          anyFailure = true
         }
+
+        if (nextRes.status === 'fulfilled') {
+          setNextClass(nextRes.value)
+        } else {
+          anyFailure = true
+        }
+
+        if (tlRes.status === 'fulfilled') {
+          setTimeline(tlRes.value)
+        } else {
+          anyFailure = true
+        }
+
+        if (summaryRes.status === 'fulfilled') {
+          setAttendanceSummary(summaryRes.value)
+        } else {
+          anyFailure = true
+        }
+
+        setHasError(anyFailure)
+        setIsLoading(false)
       } catch {
         if (active) {
           setHasError(true)

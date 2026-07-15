@@ -6,11 +6,13 @@ import type { ViewState } from '../types'
 interface TodayEmptyStateProps {
   viewState: ViewState
   onRetry?: () => void
+  className?: string
 }
 
 export const TodayEmptyState: React.FC<TodayEmptyStateProps> = ({
   viewState,
   onRetry,
+  className = '',
 }) => {
   switch (viewState) {
     case 'error':
@@ -21,6 +23,7 @@ export const TodayEmptyState: React.FC<TodayEmptyStateProps> = ({
           description="Something went wrong. Please check your connection and try again."
           actionLabel="Retry"
           onAction={onRetry}
+          className={className}
         />
       )
     case 'holiday':
@@ -29,6 +32,7 @@ export const TodayEmptyState: React.FC<TodayEmptyStateProps> = ({
           icon={<Calendar className="text-brand-info" />}
           title="No Classes Scheduled"
           description="Enjoy your day off!"
+          className={className}
         />
       )
     case 'dayEnded':
@@ -37,6 +41,7 @@ export const TodayEmptyState: React.FC<TodayEmptyStateProps> = ({
           icon={<Sunset className="text-brand-info" />}
           title="Classes Ended"
           description="Classes ended for today — have a great evening!"
+          className={className}
         />
       )
     case 'beforeFirst':
@@ -45,6 +50,7 @@ export const TodayEmptyState: React.FC<TodayEmptyStateProps> = ({
           icon={<Clock className="text-brand-info" />}
           title="Morning Schedule"
           description="Your first class starts at 9:00 AM."
+          className={className}
         />
       )
     case 'freePeriod':
@@ -53,6 +59,7 @@ export const TodayEmptyState: React.FC<TodayEmptyStateProps> = ({
           icon={<Coffee className="text-brand-info" />}
           title="No Class Right Now"
           description="Your next class starts at 11:15 AM."
+          className={className}
         />
       )
     default:

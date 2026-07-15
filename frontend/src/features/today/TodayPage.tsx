@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { AlertCircle } from 'lucide-react'
 import Typography from '../../components/Typography'
 import Skeleton from '../../components/Skeleton'
 import useToast from '../../hooks/useToast'
@@ -37,8 +38,13 @@ export const TodayPage: React.FC = () => {
     }
   }
 
+  // Determine if absolutely any cached/usable data is loaded in state
+  const hasUsableData = timeline.length > 0 || attendanceSummary !== null || currentClass !== null || nextClass !== null
+
   // Determine final render state (dev switcher overrides real async state for testing layout options)
-  const computedState = viewState !== 'active' ? viewState : (hasError ? 'error' : (isLoading ? 'loading' : 'active'))
+  const computedState = viewState !== 'active'
+    ? viewState
+    : (isLoading ? 'loading' : (hasError && !hasUsableData ? 'error' : 'active'))
 
   // Render Skeletons for Loading State
   if (computedState === 'loading') {
@@ -66,9 +72,8 @@ export const TodayPage: React.FC = () => {
     )
   }
 
-  // Handle Full-Screen Empty and Error views:
-  // 'error' | 'holiday' | 'dayEnded' | 'beforeFirst'
-  const isFullScreenEmptyState = ['error', 'holiday', 'dayEnded', 'beforeFirst'].includes(computedState)
+  // Handle Full-Screen Empty and Error views (only unrecoverable errors)
+  const isFullScreenEmptyState = computedState === 'error'
   if (isFullScreenEmptyState) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
@@ -80,10 +85,33 @@ export const TodayPage: React.FC = () => {
     )
   }
 
+  // Simulate context-dependent Next Class properties under various states:
+  const displayNextClass = computedState === 'dayEnded'
+    ? {
+        subject: 'Compiler Design',
+        room: 'Lab 3',
+        faculty: 'Dr. Jenkins',
+        startTime: '09:00 AM (Tomorrow)'
+      }
+    : (computedState === 'holiday' ? null : nextClass)
+
+  // Clear timeline only during active holiday views
+  const displayTimeline = computedState === 'holiday' ? [] : timeline
+
   return (
     <div className="space-y-6 select-none animate-in fade-in duration-200">
       {/* Dynamic Header */}
       <GreetingHeader />
+
+      {/* Offline Warning Banner */}
+      {hasError && hasUsableData && (
+        <div className="flex items-center gap-3 p-4 bg-brand-danger/10 border border-brand-danger/20 rounded-medium text-brand-danger select-none animate-in fade-in duration-200">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          <div className="flex-1 text-[14px] font-medium leading-tight">
+            Using offline data. Fresh timetable could not be loaded.
+          </div>
+        </div>
+      )}
 
       {/* Main Content Areas */}
       <div className="space-y-6">
@@ -94,8 +122,8 @@ export const TodayPage: React.FC = () => {
             Current Class
           </Typography>
           
-          {computedState === 'freePeriod' ? (
-            <TodayEmptyState viewState="freePeriod" />
+          {['holiday', 'dayEnded', 'beforeFirst', 'freePeriod'].includes(computedState) ? (
+            <TodayEmptyState viewState={computedState} className="my-0 max-w-none w-full" />
           ) : (
             currentClass && (
               <CurrentClassCard
@@ -112,40 +140,42 @@ export const TodayPage: React.FC = () => {
         </section>
 
         {/* Next Class Section */}
-        <section className="space-y-2">
-          <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
-            Next Class
-          </Typography>
-          {nextClass && (
+        {displayNextClass && (
+          <section className="space-y-2">
+            <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
+              Next Class
+            </Typography>
             <NextClassCard
-              subject={nextClass.subject}
-              room={nextClass.room}
-              faculty={nextClass.faculty}
-              startTime={nextClass.startTime}
+              subject={displayNextClass.subject}
+              room={displayNextClass.room}
+              faculty={displayNextClass.faculty}
+              startTime={displayNextClass.startTime}
             />
-          )}
-        </section>
+          </section>
+        )}
 
         {/* Today's Timeline Section */}
-        <section className="space-y-3">
-          <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
-            Today's Timeline
-          </Typography>
-          <Timeline items={timeline} />
-        </section>
+        {displayTimeline.length > 0 && (
+          <section className="space-y-3">
+            <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
+              Today's Timeline
+            </Typography>
+            <Timeline items={displayTimeline} />
+          </section>
+        )}
 
         {/* Attendance Summary Section */}
-        <section className="space-y-2">
-          <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
-            Attendance Summary
-          </Typography>
-          {attendanceSummary && (
+        {attendanceSummary && (
+          <section className="space-y-2">
+            <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
+              Attendance Summary
+            </Typography>
             <AttendanceSummaryCard
               status={attendanceSummary.status}
               percentage={attendanceSummary.percentage}
             />
-          )}
-        </section>
+          </section>
+        )}
       </div>
 
       {/* Dev-only Switcher Panel for testing state layouts */}
