@@ -36,9 +36,9 @@ export function deriveSubjectsViewModel(subjects: Subject[]): SubjectsViewModel 
     totalAttended += attendedClasses
     totalScheduled += totalClasses
 
-    let status: 'green' | 'yellow' | 'orange' | 'red' = 'red'
-    let statusLabel = 'Critical'
-    let missCountText = ''
+    let status: 'green' | 'yellow' | 'orange' | 'red'
+    let statusLabel: string
+    let missCountText: string
 
     if (percentage >= 80) {
       status = 'green'
@@ -78,8 +78,8 @@ export function deriveSubjectsViewModel(subjects: Subject[]): SubjectsViewModel 
   })
 
   const overallPercentage = totalScheduled > 0 ? Math.round((totalAttended / totalScheduled) * 100) : 0
-  let overallStatus: 'green' | 'yellow' | 'orange' | 'red' = 'red'
-  let overallStatusLabel = 'Critical'
+  let overallStatus: 'green' | 'yellow' | 'orange' | 'red'
+  let overallStatusLabel: string
 
   if (overallPercentage >= 80) {
     overallStatus = 'green'
