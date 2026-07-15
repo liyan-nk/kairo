@@ -104,7 +104,33 @@ export const TodayPage: React.FC = () => {
           </Card>
         </section>
 
-        {/* Next Class Section Slot */}
+        {/* Next Class Section */}
+        <section className="space-y-2">
+          <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
+            Next Class
+          </Typography>
+          <Card variant="outline" padding="md">
+            <div className="flex justify-between items-start">
+              <div className="space-y-1">
+                <Typography variant="title" weight="semibold">
+                  Database Management Systems
+                </Typography>
+                <Typography variant="caption" color="secondary">
+                  Prof. Alok Verma · Room 102
+                </Typography>
+              </div>
+              <div className="text-right">
+                <Typography variant="body" weight="semibold" className="text-text-primary">
+                  11:15 AM
+                </Typography>
+                <Typography variant="micro" color="secondary" className="block">
+                  starts
+                </Typography>
+              </div>
+            </div>
+          </Card>
+        </section>
+
         {/* Today's Timeline Section Slot */}
         {/* Attendance Summary Section Slot */}
       </div>
