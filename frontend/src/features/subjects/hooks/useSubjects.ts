@@ -1,26 +1,61 @@
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import { createSubjectRepository } from '../../../lib/repositories'
+import type { Subject } from '../../../lib/models'
 
 /**
- * Placeholder hook defining the public API contract for Subjects Page data fetching.
- * TODO: Connect to SubjectRepository in subsequent phases.
+ * Custom hook managing the Subjects feature data loading and state transitions.
+ * Communicates with the SubjectRepository asynchronously.
  */
 export const useSubjects = () => {
-  const [subjects, setSubjects] = useState<unknown[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<Error | null>(null)
+  const repository = useMemo(() => createSubjectRepository(), [])
 
-  const reload = useCallback(async () => {
+  const [subjects, setSubjects] = useState<Subject[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [hasError, setHasError] = useState(false)
+
+  const loadData = useCallback(async () => {
     setIsLoading(true)
-    setError(null)
-    setSubjects([])
-    setIsLoading(false)
-  }, [])
+    setHasError(false)
+    try {
+      const items = await repository.getSubjects()
+      setSubjects(items)
+      setIsLoading(false)
+    } catch {
+      setHasError(true)
+      setIsLoading(false)
+    }
+  }, [repository])
+
+  useEffect(() => {
+    let active = true
+
+    const fetchData = async () => {
+      try {
+        const items = await repository.getSubjects()
+        if (active) {
+          setSubjects(items)
+          setIsLoading(false)
+        }
+      } catch {
+        if (active) {
+          setHasError(true)
+          setIsLoading(false)
+        }
+      }
+    }
+
+    fetchData()
+
+    return () => {
+      active = false
+    }
+  }, [repository])
 
   return {
     subjects,
     isLoading,
-    error,
-    reload,
+    hasError,
+    reload: loadData,
   }
 }
 
