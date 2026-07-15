@@ -34,8 +34,6 @@ export const TodayPage: React.FC = () => {
 
   useEffect(() => {
     let active = true
-    setIsLoading(true)
-    setHasError(false)
 
     const loadTimetable = async () => {
       try {
@@ -47,16 +45,16 @@ export const TodayPage: React.FC = () => {
         ])
 
         if (active) {
-          setCurrentClass(curr);
-          setNextClass(next);
-          setTimelineItems(timeline);
-          setAttendanceSummary(summary);
-          setIsLoading(false);
+          setCurrentClass(curr)
+          setNextClass(next)
+          setTimelineItems(timeline)
+          setAttendanceSummary(summary)
+          setIsLoading(false)
         }
-      } catch (err) {
+      } catch {
         if (active) {
-          setHasError(true);
-          setIsLoading(false);
+          setHasError(true)
+          setIsLoading(false)
         }
       }
     }

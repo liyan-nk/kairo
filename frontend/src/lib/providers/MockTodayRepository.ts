@@ -17,7 +17,7 @@ export class MockTodayRepository implements TodayRepository {
       const data = getMockCurrentClass()
       return data
     } catch (err) {
-      throw new Error('TIMETABLE_FETCH_FAILED')
+      throw new Error('TIMETABLE_FETCH_FAILED', { cause: err })
     }
   }
 
@@ -26,7 +26,7 @@ export class MockTodayRepository implements TodayRepository {
       const data = getMockNextClass()
       return data
     } catch (err) {
-      throw new Error('TIMETABLE_FETCH_FAILED')
+      throw new Error('TIMETABLE_FETCH_FAILED', { cause: err })
     }
   }
 
@@ -35,7 +35,7 @@ export class MockTodayRepository implements TodayRepository {
       const data = getMockTimeline()
       return data
     } catch (err) {
-      throw new Error('TIMETABLE_FETCH_FAILED')
+      throw new Error('TIMETABLE_FETCH_FAILED', { cause: err })
     }
   }
 
@@ -44,7 +44,7 @@ export class MockTodayRepository implements TodayRepository {
       const data = getMockAttendanceSummary()
       return data
     } catch (err) {
-      throw new Error('ATTENDANCE_FETCH_FAILED')
+      throw new Error('ATTENDANCE_FETCH_FAILED', { cause: err })
     }
   }
 }
