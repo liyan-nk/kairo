@@ -6,6 +6,7 @@ import SubjectsPage from '../features/SubjectsPage'
 import CampusPage from '../features/CampusPage'
 import ProfilePage from '../features/ProfilePage'
 import NotFound from '../features/NotFound'
+import ComponentPlayground from '../dev/ComponentPlayground'
 
 export const AppRouter: React.FC = () => {
   return (
@@ -17,6 +18,10 @@ export const AppRouter: React.FC = () => {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="*" element={<NotFound />} />
       </Route>
+      
+      {import.meta.env.DEV && (
+        <Route path="/dev/playground" element={<ComponentPlayground />} />
+      )}
     </Routes>
   )
 }
