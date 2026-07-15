@@ -14,7 +14,7 @@ import type { TabKey } from '../components/BottomNavigation'
 import SegmentedControl from '../components/SegmentedControl'
 import Search from '../components/Search'
 import Dialog from '../components/Dialog'
-import { useToast } from '../app/ToastProvider'
+import useToast from '../hooks/useToast'
 
 export const ComponentPlayground: React.FC = () => {
   const { showToast } = useToast()
