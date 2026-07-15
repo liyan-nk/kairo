@@ -18,6 +18,17 @@ export const TodayPage: React.FC = () => {
   const [viewState, setViewState] = useState<ViewState>('active')
   const [attendance, setAttendance] = useState<'present' | 'absent' | null>(null)
 
+  // Live timer simulation states
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+
+  // Run a client-side ticking timer once a second to drive the countdown
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1)
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   // Get contextual greeting based on current time
   const getGreeting = (): string => {
     const hour = new Date().getHours()
@@ -42,6 +53,11 @@ export const TodayPage: React.FC = () => {
       navigator.vibrate(10) // Light haptic tick
     }
   }
+
+  // Calculate live countdown based on simulated start point of 10:18 AM
+  // 10:18 AM is 618 minutes from midnight. End of class is 11:00 AM (660 minutes).
+  const totalElapsedMinutes = Math.floor(elapsedSeconds / 60)
+  const simulatedMinutesLeft = Math.max(0, 660 - (618 + totalElapsedMinutes))
 
   // Render Skeletons for Loading State
   if (viewState === 'loading') {
@@ -124,7 +140,7 @@ export const TodayPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 select-none">
+    <div className="space-y-6 select-none animate-in fade-in duration-200">
       {/* Dynamic Header */}
       <header className="space-y-1">
         <Typography variant="h2" weight="bold">
@@ -153,19 +169,19 @@ export const TodayPage: React.FC = () => {
           ) : (
             <Card variant="default" padding="lg" className="space-y-4">
               <div className="flex justify-between items-start">
-                <div className="space-y-1">
-                  <Typography variant="title" weight="bold">
+                <div className="space-y-1 pr-4">
+                  <Typography variant="title" weight="bold" className="leading-tight">
                     Java Programming
                   </Typography>
                   <Typography variant="caption" color="secondary">
                     Dr. Sarah Jenkins · Room 404
                   </Typography>
                 </div>
-                <div className="text-right">
-                  <Typography variant="h3" weight="bold" className="text-brand-info">
-                    42m
+                <div className="text-right shrink-0">
+                  <Typography variant="h3" weight="bold" className="text-brand-info leading-none">
+                    {simulatedMinutesLeft}m
                   </Typography>
-                  <Typography variant="micro" color="secondary" className="block">
+                  <Typography variant="micro" color="secondary" className="block mt-1">
                     remaining
                   </Typography>
                 </div>
@@ -216,11 +232,11 @@ export const TodayPage: React.FC = () => {
                   Prof. Alok Verma · Room 102
                 </Typography>
               </div>
-              <div className="text-right">
+              <div className="text-right shrink-0">
                 <Typography variant="body" weight="semibold" className="text-text-primary">
                   11:15 AM
                 </Typography>
-                <Typography variant="micro" color="secondary" className="block">
+                <Typography variant="micro" color="secondary" className="block mt-0.5">
                   starts
                 </Typography>
               </div>
