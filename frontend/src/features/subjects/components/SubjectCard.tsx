@@ -1,4 +1,4 @@
-import React from 'react'
+import { Link } from 'react-router-dom'
 import Typography from '../../../components/Typography'
 import { AttendanceBadge } from './AttendanceBadge'
 import { AttendanceProgress } from './AttendanceProgress'
@@ -10,7 +10,10 @@ interface SubjectCardProps {
 
 export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
   return (
-    <div className="p-5 bg-surface border border-border-card rounded-large space-y-4 shadow-sm select-none animate-in fade-in duration-200">
+    <Link
+      to={`/subjects/${subject.id}`}
+      className="p-5 bg-surface border border-border-card rounded-large space-y-4 shadow-sm select-none animate-in fade-in duration-200 block hover:border-text-secondary/30 transition-all cursor-pointer"
+    >
       {/* Title & Info Block */}
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
@@ -45,7 +48,7 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
         </div>
         <AttendanceProgress percentage={subject.percentage} status={subject.status} />
       </div>
-    </div>
+    </Link>
   )
 }
 
