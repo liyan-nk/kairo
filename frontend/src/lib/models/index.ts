@@ -34,3 +34,12 @@ export interface Subject {
   attendedClasses: number
   totalClasses: number
 }
+
+export interface AttendanceRecord {
+  id: string
+  subjectId: string
+  date: string // YYYY-MM-DD
+  status: 'Present' | 'Absent'
+  timetableSlot: string
+  notes?: string
+}

@@ -14,4 +14,7 @@ export const initDatabase = (db: IDBDatabase, oldVersion: number) => {
     db.createObjectStore(STORES.lostFound, { keyPath: 'id' })
     db.createObjectStore(STORES.settings, { keyPath: 'key' })
   }
+  if (oldVersion < 2) {
+    db.createObjectStore(STORES.attendanceHistory, { keyPath: 'id' })
+  }
 }
