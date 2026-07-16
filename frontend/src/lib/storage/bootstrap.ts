@@ -6,8 +6,46 @@ import {
   getMockTimeline,
   getMockAttendanceSummary,
 } from '../../features/today/data/mockToday'
+import type { AttendanceRecord } from '../models'
 
 let bootstrapPromise: Promise<void> | null = null
+
+/**
+ * Generates mock attendance history records for a subject.
+ * Guarantees a deterministic sequence of weekdays going backward.
+ */
+function generateMockAttendanceRecords(
+  subjectId: string,
+  total: number,
+  presentCount: number
+): Omit<AttendanceRecord, 'id'>[] {
+  const records = []
+  let currentDate = new Date('2026-07-15')
+  let generated = 0
+  let presentsLeft = presentCount
+
+  while (generated < total) {
+    const day = currentDate.getDay()
+    if (day !== 0 && day !== 6) { // Weekdays only
+      const status = presentsLeft > 0 ? 'Present' : 'Absent'
+      if (status === 'Present') presentsLeft--
+
+      const timetableSlots = ['09:00 AM', '10:00 AM', '11:15 AM', '12:15 PM']
+      const timetableSlot = timetableSlots[generated % timetableSlots.length]
+
+      records.push({
+        subjectId,
+        date: currentDate.toISOString().split('T')[0],
+        status: status as 'Present' | 'Absent',
+        timetableSlot,
+        notes: status === 'Absent' ? 'Medical leave' : undefined,
+      })
+      generated++
+    }
+    currentDate.setDate(currentDate.getDate() - 1)
+  }
+  return records
+}
 
 /**
  * Self-contained seeder for the today store.
@@ -88,6 +126,31 @@ async function ensureSubjectsSeeded(): Promise<void> {
 }
 
 /**
+ * Self-contained seeder for the attendanceHistory store.
+ * Seeds chronological records matching canonical Subject counts if empty.
+ */
+async function ensureAttendanceHistorySeeded(): Promise<void> {
+  const history = await getAllFromStore<AttendanceRecord>(STORES.attendanceHistory)
+  if (history.length === 0) {
+    const specs = [
+      { subjectId: '1', total: 25, present: 23 },
+      { subjectId: '2', total: 22, present: 17 },
+      { subjectId: '3', total: 23, present: 17 },
+      { subjectId: '4', total: 20, present: 12 },
+    ]
+    for (const spec of specs) {
+      const records = generateMockAttendanceRecords(spec.subjectId, spec.total, spec.present)
+      for (let i = 0; i < records.length; i++) {
+        await putToStore(STORES.attendanceHistory, {
+          id: `${spec.subjectId}_rec_${i}`,
+          ...records[i],
+        })
+      }
+    }
+  }
+}
+
+/**
  * Lazily seeds mock data into the browser's IndexedDB stores on first application launch.
  * Uses a single cached promise to prevent race conditions during concurrent calls.
  */
@@ -103,6 +166,7 @@ export function bootstrapDatabase(): Promise<void> {
         ensureTodaySeeded(),
         ensureTimetableSeeded(),
         ensureSubjectsSeeded(),
+        ensureAttendanceHistorySeeded(),
       ])
     } catch (err) {
       // Allow retry on subsequent calls if seeding fails

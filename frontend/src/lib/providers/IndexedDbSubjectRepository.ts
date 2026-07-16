@@ -1,5 +1,5 @@
 import type { SubjectRepository } from '../repositories/SubjectRepository'
-import type { Subject } from '../models'
+import type { Subject, AttendanceRecord } from '../models'
 import { getFromStore, getAllFromStore, putToStore } from '../storage/stores'
 import { STORES } from '../storage/schema'
 import { bootstrapDatabase } from '../storage/bootstrap'
@@ -57,6 +57,77 @@ export class IndexedDbSubjectRepository implements SubjectRepository {
       await putToStore(STORES.subjects, updated)
     } catch (err) {
       throw new Error('ATTENDANCE_UPDATE_FAILED', { cause: err })
+    }
+  }
+
+  async getAttendanceHistory(subjectId: string): Promise<AttendanceRecord[]> {
+    await this.ensureInitialized()
+    try {
+      const all = await getAllFromStore<AttendanceRecord>(STORES.attendanceHistory)
+      return all.filter((r) => r.subjectId === subjectId)
+    } catch (err) {
+      throw new Error('HISTORY_FETCH_FAILED', { cause: err })
+    }
+  }
+
+  async addAttendanceRecord(record: AttendanceRecord): Promise<void> {
+    await this.ensureInitialized()
+    try {
+      // 1. Add history log record
+      await putToStore(STORES.attendanceHistory, record)
+      
+      // 2. Fetch subject and atomically update its canonical counters
+      const subject = await getFromStore<Subject>(STORES.subjects, record.subjectId)
+      if (subject) {
+        const isPresent = record.status === 'Present'
+        const updated = {
+          ...subject,
+          attendedClasses: subject.attendedClasses + (isPresent ? 1 : 0),
+          totalClasses: subject.totalClasses + 1,
+        }
+        await putToStore(STORES.subjects, updated)
+      }
+    } catch (err) {
+      throw new Error('ADD_HISTORY_RECORD_FAILED', { cause: err })
+    }
+  }
+
+  async updateAttendanceRecord(record: AttendanceRecord): Promise<void> {
+    await this.ensureInitialized()
+    try {
+      // 1. Fetch old record to calculate counter difference
+      const oldRecord = await getFromStore<AttendanceRecord>(STORES.attendanceHistory, record.id)
+      if (!oldRecord) {
+        throw new Error('OLD_RECORD_NOT_FOUND')
+      }
+
+      // 2. Update history log record
+      await putToStore(STORES.attendanceHistory, record)
+
+      // 3. Update aggregate Subject counters atomically if status changed
+      if (oldRecord.status !== record.status) {
+        const subject = await getFromStore<Subject>(STORES.subjects, record.subjectId)
+        if (subject) {
+          const wasPresent = oldRecord.status === 'Present'
+          const isPresent = record.status === 'Present'
+          
+          let diffAttended = 0
+          if (wasPresent && !isPresent) {
+            diffAttended = -1
+          } else if (!wasPresent && isPresent) {
+            diffAttended = 1
+          }
+
+          const updated = {
+            ...subject,
+            attendedClasses: subject.attendedClasses + diffAttended,
+            // totalClasses does not change because it's an edit
+          }
+          await putToStore(STORES.subjects, updated)
+        }
+      }
+    } catch (err) {
+      throw new Error('UPDATE_HISTORY_RECORD_FAILED', { cause: err })
     }
   }
 }
