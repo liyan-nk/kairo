@@ -49,9 +49,8 @@ export function deriveSubjectDetailViewModel(
   const status = getStatusForPercentage(percentage)
   const statusLabel = getStatusLabelForStatus(status)
 
-  // 1. Calculate gap text and recommended action
-  let gapText = ''
-  let recommendedAction = ''
+  let gapText: string
+  let recommendedAction: string
 
   if (percentage >= 75) {
     const maxMisses = Math.max(0, Math.floor(subject.attendedClasses / 0.75 - subject.totalClasses))

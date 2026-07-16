@@ -20,7 +20,7 @@ function generateMockAttendanceRecords(
   presentCount: number
 ): Omit<AttendanceRecord, 'id'>[] {
   const records = []
-  let currentDate = new Date('2026-07-15')
+  const currentDate = new Date('2026-07-15')
   let generated = 0
   let presentsLeft = presentCount
 

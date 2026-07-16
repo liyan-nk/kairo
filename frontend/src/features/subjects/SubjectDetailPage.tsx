@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import Typography from '../../components/Typography'
@@ -27,31 +27,47 @@ export const SubjectDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
 
-  const loadData = useCallback(async () => {
-    if (!subjectId) return
+  const [retryTrigger, setRetryTrigger] = useState(0)
+
+  const handleRetry = () => {
     setIsLoading(true)
     setHasError(false)
-    try {
-      const [subData, historyData] = await Promise.all([
-        repository.getSubject(subjectId),
-        repository.getAttendanceHistory(subjectId),
-      ])
-      if (!subData) {
-        setHasError(true)
-      } else {
-        setSubject(subData)
-        setHistory(historyData)
-      }
-      setIsLoading(false)
-    } catch {
-      setHasError(true)
-      setIsLoading(false)
-    }
-  }, [subjectId, repository])
+    setRetryTrigger((prev) => prev + 1)
+  }
 
   useEffect(() => {
-    loadData()
-  }, [loadData])
+    let active = true
+
+    const fetchData = async () => {
+      if (!subjectId) return
+      try {
+        const [subData, historyData] = await Promise.all([
+          repository.getSubject(subjectId),
+          repository.getAttendanceHistory(subjectId),
+        ])
+        if (active) {
+          if (!subData) {
+            setHasError(true)
+          } else {
+            setSubject(subData)
+            setHistory(historyData)
+          }
+          setIsLoading(false)
+        }
+      } catch {
+        if (active) {
+          setHasError(true)
+          setIsLoading(false)
+        }
+      }
+    }
+
+    fetchData()
+
+    return () => {
+      active = false
+    }
+  }, [subjectId, repository, retryTrigger])
 
   const viewModel = useMemo(() => {
     if (!subject) return null
@@ -89,7 +105,7 @@ export const SubjectDetailPage: React.FC = () => {
           Failed to load subject detail.
         </Typography>
         <button
-          onClick={loadData}
+          onClick={handleRetry}
           className="px-4 py-2 bg-text-primary text-bg rounded-medium text-[14px] font-medium"
         >
           Retry
