@@ -50,7 +50,7 @@ export const LostAndFoundCard: React.FC<LostAndFoundCardProps> = ({ item, onClai
       )}
 
       {/* Footer details */}
-      <div className="flex justify-between items-center text-[13px] text-text-secondary pt-1">
+      <div className="flex flex-wrap justify-between items-center gap-2 text-[13px] text-text-secondary pt-1">
         <div>
           Location: <span className="font-semibold text-text-primary">{item.location}</span>
         </div>
@@ -64,11 +64,11 @@ export const LostAndFoundCard: React.FC<LostAndFoundCardProps> = ({ item, onClai
         <div className="pt-2 border-t border-border-card/40 flex justify-end">
           <Button
             variant="secondary"
+            size="sm"
             onClick={() => onClaim(item)}
-            className="flex items-center gap-1.5 h-[36px] px-3 text-[13px]"
+            icon={<HelpCircle className="w-4 h-4 text-brand-info" />}
           >
-            <HelpCircle className="w-4 h-4 text-brand-info" />
-            <span>Claim Item</span>
+            Claim Item
           </Button>
         </div>
       )}

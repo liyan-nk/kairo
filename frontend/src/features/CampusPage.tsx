@@ -203,11 +203,11 @@ export const CampusPage: React.FC = () => {
         </Typography>
         <Button
           variant="primary"
+          size="sm"
           onClick={() => (activeTab === 0 ? setIsProxyOpen(true) : setIsItemOpen(true))}
-          className="flex items-center gap-1 h-[36px] px-3 text-[13px]"
+          icon={<Plus className="w-4 h-4" />}
         >
-          <Plus className="w-4 h-4" />
-          <span>{activeTab === 0 ? 'Report' : 'Log'}</span>
+          {activeTab === 0 ? 'Report' : 'Log Item'}
         </Button>
       </div>
 

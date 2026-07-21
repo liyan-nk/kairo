@@ -1,9 +1,11 @@
 import React from 'react'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'danger'
+export type ButtonSize = 'sm' | 'md' | 'lg'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant
+  size?: ButtonSize
   icon?: React.ReactNode
   iconPosition?: 'left' | 'right'
   fullWidth?: boolean
@@ -12,6 +14,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
+  size = 'md',
   icon,
   iconPosition = 'left',
   fullWidth = false,
@@ -20,7 +23,13 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyle =
-    'inline-flex items-center justify-center rounded-medium font-semibold text-[16px] h-[48px] px-6 transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none gap-2 select-none outline-none focus-visible:ring-2 focus-visible:ring-brand-info focus-visible:ring-offset-1 focus-visible:ring-offset-bg'
+    'inline-flex items-center justify-center rounded-medium font-semibold transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none gap-2 select-none outline-none focus-visible:ring-2 focus-visible:ring-brand-info focus-visible:ring-offset-1 focus-visible:ring-offset-bg'
+
+  const sizeStyles: Record<ButtonSize, string> = {
+    sm: 'h-[36px] px-3 text-[13px]',
+    md: 'h-[44px] px-5 text-[15px]',
+    lg: 'h-[48px] px-6 text-[16px]',
+  }
 
   const variantStyles: Record<ButtonVariant, string> = {
     primary:
@@ -37,6 +46,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   const classes = [
     baseStyle,
+    sizeStyles[size],
     variantStyles[variant],
     widthStyle,
     className,

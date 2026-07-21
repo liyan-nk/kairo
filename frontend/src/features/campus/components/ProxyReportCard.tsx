@@ -77,11 +77,11 @@ export const ProxyReportCard: React.FC<ProxyReportCardProps> = ({ report, onVeri
         <div className="pt-2 border-t border-border-card/40 flex justify-end">
           <Button
             variant="secondary"
+            size="sm"
             onClick={() => onVerify(report.id)}
-            className="flex items-center gap-1.5 h-[36px] px-3 text-[13px]"
+            icon={<CheckCircle2 className="w-4 h-4 text-brand-info" />}
           >
-            <CheckCircle2 className="w-4 h-4 text-brand-info" />
-            <span>Confirm</span>
+            Confirm
           </Button>
         </div>
       )}
