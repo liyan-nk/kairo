@@ -38,7 +38,25 @@ public class SubjectService {
     @Transactional(readOnly = true)
     public List<CourseResponse> getEnrolledCourses(UUID userId) {
         List<EnrollmentEntity> enrollments = enrollmentRepository.findByUserIdAndDeletedAtIsNull(userId);
-        return enrollments.stream().map(this::mapToCourseResponse).toList();
+        if (enrollments.isEmpty()) {
+            return List.of();
+        }
+
+        List<UUID> enrollmentIds = enrollments.stream().map(EnrollmentEntity::getId).toList();
+        List<OfficialBaselineEntity> baselines = baselineRepository.findAllByEnrollmentIdIn(enrollmentIds);
+
+        java.util.Map<UUID, Double> latestBaselines = baselines.stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        OfficialBaselineEntity::getEnrollmentId,
+                        java.util.stream.Collectors.collectingAndThen(
+                                java.util.stream.Collectors.maxBy(java.util.Comparator.comparing(OfficialBaselineEntity::getPublishedDate)),
+                                opt -> opt.map(b -> b.getBaselinePercentage().doubleValue()).orElse(null)
+                        )
+                ));
+
+        return enrollments.stream()
+                .map(e -> mapToCourseResponse(e, latestBaselines.get(e.getId())))
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -65,7 +83,10 @@ public class SubjectService {
         Double baselinePct = baselineRepository.findTopByEnrollmentIdOrderByPublishedDateDesc(enrollment.getId())
                 .map(b -> b.getBaselinePercentage().doubleValue())
                 .orElse(null);
+        return mapToCourseResponse(enrollment, baselinePct);
+    }
 
+    public CourseResponse mapToCourseResponse(EnrollmentEntity enrollment, Double baselinePct) {
         int attended = enrollment.getAttendedClasses();
         int total = enrollment.getTotalClasses();
 

@@ -11,4 +11,6 @@ import java.util.UUID;
 public interface OfficialBaselineRepository extends JpaRepository<OfficialBaselineEntity, UUID> {
 
     Optional<OfficialBaselineEntity> findTopByEnrollmentIdOrderByPublishedDateDesc(UUID enrollmentId);
+
+    java.util.List<OfficialBaselineEntity> findAllByEnrollmentIdIn(java.util.List<UUID> enrollmentIds);
 }
