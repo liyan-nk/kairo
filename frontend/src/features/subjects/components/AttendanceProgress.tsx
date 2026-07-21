@@ -17,9 +17,9 @@ export const AttendanceProgress: React.FC<AttendanceProgressProps> = ({
   }
 
   return (
-    <div className="w-full h-1.5 bg-surface-secondary border border-border-card rounded-pill overflow-hidden">
+    <div className="w-full h-2 bg-surface-secondary border border-border-card/40 rounded-pill overflow-hidden">
       <div
-        className={`h-full ${statusColorMap[status]} transition-all duration-300`}
+        className={`h-full ${statusColorMap[status]} transition-all duration-500 ease-out`}
         style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
       />
     </div>

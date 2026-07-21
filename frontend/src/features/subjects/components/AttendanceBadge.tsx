@@ -18,7 +18,7 @@ export const AttendanceBadge: React.FC<AttendanceBadgeProps> = ({
 
   return (
     <span
-      className={`px-2.5 py-0.5 text-[11px] font-semibold rounded-pill border tracking-wide uppercase shrink-0 ${statusColorMap[status]}`}
+      className={`px-2.5 py-1 text-[11px] font-bold rounded-pill border tracking-wider uppercase shrink-0 ${statusColorMap[status]}`}
     >
       {label}
     </span>

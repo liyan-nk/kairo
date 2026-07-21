@@ -20,17 +20,17 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyle =
-    'inline-flex items-center justify-center rounded-medium font-semibold text-[16px] h-[48px] px-6 transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none gap-2 select-none outline-none'
+    'inline-flex items-center justify-center rounded-medium font-semibold text-[16px] h-[48px] px-6 transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none gap-2 select-none outline-none focus-visible:ring-2 focus-visible:ring-brand-info focus-visible:ring-offset-1 focus-visible:ring-offset-bg'
 
   const variantStyles: Record<ButtonVariant, string> = {
     primary:
-      'bg-text-primary text-bg hover:opacity-90 focus-visible:ring-2 focus-visible:ring-brand-info',
+      'bg-text-primary text-bg hover:opacity-90',
     secondary:
-      'border border-border-card bg-transparent text-text-primary hover:bg-surface-secondary focus-visible:ring-2 focus-visible:ring-brand-info',
+      'border border-border-card bg-transparent text-text-primary hover:bg-surface-secondary',
     tertiary:
       'bg-transparent text-text-secondary hover:text-text-primary px-3 h-auto focus-visible:underline',
     danger:
-      'bg-brand-danger text-white hover:opacity-90 focus-visible:ring-2 focus-visible:ring-brand-info',
+      'bg-brand-danger text-white hover:opacity-90',
   }
 
   const widthStyle = fullWidth ? 'w-full' : ''
