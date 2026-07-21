@@ -1,9 +1,39 @@
-import type { ClassItem } from '../../../lib/models'
+import type { ClassItem, ProxyReport } from '../../../lib/models'
 
 export interface ParsedSlot {
   item: ClassItem
   startMinutes: number
   endMinutes: number
+}
+
+/**
+ * Live Schedule Resolver: overlays verified consensus proxy reports on top of the default
+ * timetable items at render time. Non-destructively preserves the canonical database records.
+ */
+export function applyProxyOverlays(
+  timetable: ClassItem[],
+  reports: ProxyReport[],
+  dateStr: string
+): ClassItem[] {
+  const verifiedReports = reports.filter(
+    (r) => (r.status === 'Verified' || r.status === 'Auto Accepted') && r.date === dateStr
+  )
+
+  if (verifiedReports.length === 0) return timetable
+
+  return timetable.map((slot) => {
+    // Check if there is a verified discrepancy report for this slot ID (or matching subject name)
+    const report = verifiedReports.find((r) => r.timetableSlotId === slot.id)
+    if (report) {
+      return {
+        ...slot,
+        subject: report.actualSubject,
+        room: report.room,
+        faculty: report.faculty,
+      }
+    }
+    return slot
+  })
 }
 
 export type DayStatus =
