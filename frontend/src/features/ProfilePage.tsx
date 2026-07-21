@@ -4,20 +4,16 @@ import Skeleton from '../components/Skeleton'
 import Button from '../components/Button'
 import StudentIdentityCard from './profile/components/StudentIdentityCard'
 import AttendanceSyncCard from './profile/components/AttendanceSyncCard'
-import AttendanceSyncDialog from './profile/components/AttendanceSyncDialog'
 import AboutKairoCard from './profile/components/AboutKairoCard'
-import { useToast } from '../hooks/useToast'
 import { createProfileRepository } from '../lib/repositories'
 import type { UserProfile } from '../lib/models'
 
 export const ProfilePage: React.FC = () => {
   const profileRepo = useMemo(() => createProfileRepository(), [])
-  const { showToast } = useToast()
 
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
-  const [isSyncOpen, setIsSyncOpen] = useState(false)
 
   const loadData = useCallback(async () => {
     setIsLoading(true)
@@ -62,16 +58,6 @@ export const ProfilePage: React.FC = () => {
     }
   }, [profileRepo])
 
-  const handleSyncSubmit = async (percentage: number) => {
-    try {
-      await profileRepo.syncOfficialBaseline(percentage)
-      showToast('Baseline attendance synchronized successfully')
-      loadData()
-    } catch {
-      showToast('Failed to synchronize baseline')
-    }
-  }
-
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -109,18 +95,10 @@ export const ProfilePage: React.FC = () => {
       <AttendanceSyncCard
         lastSyncDate={profile.lastSyncDate}
         officialBaselinePercentage={profile.officialBaselinePercentage}
-        onSyncTrigger={() => setIsSyncOpen(true)}
       />
 
       {/* About App details */}
       <AboutKairoCard />
-
-      {/* Baseline Sync Dialog */}
-      <AttendanceSyncDialog
-        isOpen={isSyncOpen}
-        onClose={() => setIsSyncOpen(false)}
-        onSubmit={handleSyncSubmit}
-      />
     </div>
   )
 }

@@ -1,19 +1,16 @@
 import React from 'react'
-import { RefreshCw, CalendarCheck } from 'lucide-react'
+import { CalendarCheck } from 'lucide-react'
 import Card from '../../../components/Card'
 import Typography from '../../../components/Typography'
-import Button from '../../../components/Button'
 
 interface AttendanceSyncCardProps {
   lastSyncDate?: string
   officialBaselinePercentage?: number
-  onSyncTrigger: () => void
 }
 
 export const AttendanceSyncCard: React.FC<AttendanceSyncCardProps> = ({
   lastSyncDate,
   officialBaselinePercentage,
-  onSyncTrigger,
 }) => {
   return (
     <Card variant="default" padding="lg" className="space-y-4">
@@ -25,7 +22,7 @@ export const AttendanceSyncCard: React.FC<AttendanceSyncCardProps> = ({
             Official Sync Baseline
           </Typography>
           <Typography variant="caption" color="secondary">
-            Sync daily estimations against college baseline
+            Estimations baseline established by the institution
           </Typography>
         </div>
       </div>
@@ -33,27 +30,21 @@ export const AttendanceSyncCard: React.FC<AttendanceSyncCardProps> = ({
       {/* Sync Status Banner */}
       <div className="p-3 bg-surface-secondary/70 rounded-medium space-y-2 border border-border-card/50">
         <div className="flex justify-between items-center text-[13px]">
-          <span className="text-text-secondary font-medium">Last Sync Date</span>
-          <span className="text-text-primary font-semibold">{lastSyncDate || 'Never synced'}</span>
+          <span className="text-text-secondary font-medium">Last Official Update</span>
+          <span className="text-text-primary font-semibold">{lastSyncDate || 'Never updated'}</span>
         </div>
         <div className="flex justify-between items-center text-[13px]">
-          <span className="text-text-secondary font-medium">Baseline Percentage</span>
+          <span className="text-text-secondary font-medium">Official Baseline Attendance</span>
           <span className="text-text-primary font-bold">
             {officialBaselinePercentage !== undefined ? `${officialBaselinePercentage}%` : 'Not initialized'}
           </span>
         </div>
       </div>
 
-      {/* Sync Trigger Button */}
-      <Button
-        variant="primary"
-        fullWidth
-        onClick={onSyncTrigger}
-        className="flex items-center justify-center gap-1.5 h-[48px]"
-      >
-        <RefreshCw className="w-4 h-4" />
-        <span>Sync Official Attendance</span>
-      </Button>
+      {/* Explanatory text */}
+      <Typography variant="caption" color="secondary" className="block leading-relaxed">
+        KAIRO estimates daily attendance starting from this official baseline. Manual sync is disabled in V1.
+      </Typography>
     </Card>
   )
 }
