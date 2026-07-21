@@ -207,7 +207,7 @@ export const CampusPage: React.FC = () => {
           className="flex items-center gap-1 h-[36px] px-3 text-[13px]"
         >
           <Plus className="w-4 h-4" />
-          <span>{activeTab === 0 ? 'Report Proxy' : 'Log Item'}</span>
+          <span>{activeTab === 0 ? 'Report' : 'Log'}</span>
         </Button>
       </div>
 

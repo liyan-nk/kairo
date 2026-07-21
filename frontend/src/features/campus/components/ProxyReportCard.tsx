@@ -81,7 +81,7 @@ export const ProxyReportCard: React.FC<ProxyReportCardProps> = ({ report, onVeri
             className="flex items-center gap-1.5 h-[36px] px-3 text-[13px]"
           >
             <CheckCircle2 className="w-4 h-4 text-brand-info" />
-            <span>Confirm Discrepancy</span>
+            <span>Confirm</span>
           </Button>
         </div>
       )}
