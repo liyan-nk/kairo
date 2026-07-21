@@ -519,6 +519,24 @@ Exposing low-level database actions (export/import data) or shifting target atte
 
 ---
 
+## ADR-019 — Canonical Weekday Timetable Navigation & Baseline Terminology
+
+Status:       Accepted
+Date:         2026-07-21
+
+### Decision
+1. **Canonical Timetable Source**: A dedicated Timetable screen (`/timetable`) shall serve as KAIRO's second major navigation tab. The Timetable page, Today page, and Live Schedule Resolver must all consume the exact same database timetable store. No duplicated timetable data or secondary schedule arrays are permitted.
+2. **Official Baseline Terminology**: The Profile page shall display the Last Official Attendance Baseline (e.g. 80.0%) and Last Official Update Date without exposing manual sync triggers in V1. Institutional minimum requirement (75%) remains fixed across all estimation algorithms.
+
+### Context
+Allowing duplicate timetable arrays or exposing manual sync controls created UX inconsistencies and risks of state desynchronization.
+
+### Reasoning
+- **Data Integrity**: Single source of truth across Today, Timetable, and Campus.
+- **Product Clarity**: The student receives instant schedule answers for any weekday (Mon-Fri).
+
+---
+
 ## Future ADRs
 
 Every major technical or product decision must be recorded here **before**
