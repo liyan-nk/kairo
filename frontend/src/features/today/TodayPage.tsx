@@ -93,23 +93,23 @@ export const TodayPage: React.FC = () => {
   // Render Skeletons for Loading State
   if (viewModel.computedState === 'loading') {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-in fade-in duration-200">
         <header className="space-y-2">
           <Skeleton variant="text" width="40%" height="28px" />
           <Skeleton variant="text" width="60%" height="16px" />
         </header>
         <div className="space-y-6">
           <div className="space-y-2">
-            <Skeleton variant="text" width="20%" />
-            <Skeleton variant="rectangular" height="160px" />
+            <Skeleton variant="text" width="25%" height="14px" />
+            <Skeleton variant="rectangular" height="180px" className="rounded-large" />
           </div>
           <div className="space-y-2">
-            <Skeleton variant="text" width="20%" />
-            <Skeleton variant="rectangular" height="88px" />
+            <Skeleton variant="text" width="25%" height="14px" />
+            <Skeleton variant="rectangular" height="100px" className="rounded-large" />
           </div>
           <div className="space-y-2">
-            <Skeleton variant="text" width="30%" />
-            <Skeleton variant="rectangular" height="240px" />
+            <Skeleton variant="text" width="30%" height="14px" />
+            <Skeleton variant="rectangular" height="220px" className="rounded-large" />
           </div>
         </div>
       </div>
