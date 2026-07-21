@@ -13,7 +13,6 @@ import TodayEmptyState from './components/TodayEmptyState'
 import CurrentClassCard from './components/CurrentClassCard'
 import NextClassCard from './components/NextClassCard'
 import Timeline from './components/Timeline'
-import AttendanceSummaryCard from './components/AttendanceSummaryCard'
 import { deriveTodayViewModel } from './utils/todayViewModel'
 import { deriveTimetableViewModel } from '../timetable/utils/timetableViewModel'
 
@@ -213,19 +212,6 @@ export const TodayPage: React.FC = () => {
               Today's Timeline
             </Typography>
             <Timeline items={liveTimetableVm.timelineItems.length > 0 ? liveTimetableVm.timelineItems : viewModel.timeline} />
-          </section>
-        )}
-
-        {/* Attendance Summary Section */}
-        {attendanceSummary && (
-          <section className="space-y-2">
-            <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
-              Attendance Summary
-            </Typography>
-            <AttendanceSummaryCard
-              status={attendanceSummary.status}
-              percentage={attendanceSummary.percentage}
-            />
           </section>
         )}
       </div>
