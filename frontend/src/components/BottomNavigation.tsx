@@ -39,7 +39,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
           <button
             key={item.key}
             onClick={() => onChange(item.key)}
-            className={`flex flex-col items-center justify-center w-full h-full transition-all duration-150 active:scale-95 outline-none ${
+            className={`flex flex-col items-center justify-center w-full h-full transition-all duration-150 active:scale-95 outline-none focus-visible:ring-2 focus-visible:ring-brand-info focus-visible:ring-inset ${
               isActive ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'
             }`}
             aria-label={item.label}
