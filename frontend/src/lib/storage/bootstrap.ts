@@ -151,6 +151,100 @@ async function ensureAttendanceHistorySeeded(): Promise<void> {
 }
 
 /**
+ * Self-contained seeder for proxyReports and lostFound stores.
+ */
+async function ensureCampusSeeded(): Promise<void> {
+  const reports = await getAllFromStore(STORES.proxyReports)
+  const todayStr = new Date().toISOString().split('T')[0]
+  if (reports.length === 0) {
+    const mockReports = [
+      {
+        id: 'report_1',
+        subjectId: '3',
+        timetableSlotId: '1',
+        expectedSubject: 'Operating Systems',
+        actualSubject: 'Database Management Systems',
+        room: 'Room 102',
+        faculty: 'Prof. Alok Verma',
+        reportCount: 3,
+        status: 'Likely' as const,
+        date: todayStr,
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: 'report_2',
+        subjectId: '4',
+        timetableSlotId: '2',
+        expectedSubject: 'Computer Networks',
+        actualSubject: 'Java Programming',
+        room: 'Room 404',
+        faculty: 'Dr. Sarah Jenkins',
+        reportCount: 7,
+        status: 'Verified' as const,
+        date: todayStr,
+        createdAt: new Date().toISOString(),
+      },
+    ]
+    for (const report of mockReports) {
+      await putToStore(STORES.proxyReports, report)
+    }
+  }
+
+  const lfItems = await getAllFromStore(STORES.lostFound)
+  if (lfItems.length === 0) {
+    const mockLfItems = [
+      {
+        id: 'lf_1',
+        title: 'Scientific Calculator',
+        description: 'Found in Lab 2. FX-991EX model.',
+        category: 'Electronics',
+        location: 'Lab 2',
+        date: todayStr,
+        status: 'Found' as const,
+        question: 'What name is written on the back of the cover?',
+        contactInfo: 'Prof. Alok Verma',
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: 'lf_2',
+        title: 'Blue Water Bottle',
+        description: 'Left near the canteen.',
+        category: 'Personal Items',
+        location: 'Canteen',
+        date: todayStr,
+        status: 'Lost' as const,
+        question: 'What brand or sticker is on the bottle?',
+        contactInfo: 'Roll CS-203',
+        createdAt: new Date().toISOString(),
+      },
+    ]
+    for (const item of mockLfItems) {
+      await putToStore(STORES.lostFound, item)
+    }
+  }
+}
+
+/**
+ * Self-contained seeder for the student profile store.
+ */
+async function ensureProfileSeeded(): Promise<void> {
+  const profile = await getFromStore(STORES.profile, 'profile_student')
+  if (!profile) {
+    const mockProfile = {
+      id: 'profile_student',
+      name: 'Liyan',
+      rollNumber: 'CS-2026-104',
+      department: 'Computer Science & Engineering',
+      semester: '5th Semester',
+      section: 'Section A',
+      lastSyncDate: new Date('2026-07-15').toISOString().split('T')[0],
+      officialBaselinePercentage: 80,
+    }
+    await putToStore(STORES.profile, mockProfile)
+  }
+}
+
+/**
  * Lazily seeds mock data into the browser's IndexedDB stores on first application launch.
  * Uses a single cached promise to prevent race conditions during concurrent calls.
  */
@@ -167,6 +261,8 @@ export function bootstrapDatabase(): Promise<void> {
         ensureTimetableSeeded(),
         ensureSubjectsSeeded(),
         ensureAttendanceHistorySeeded(),
+        ensureCampusSeeded(),
+        ensureProfileSeeded(),
       ])
     } catch (err) {
       // Allow retry on subsequent calls if seeding fails

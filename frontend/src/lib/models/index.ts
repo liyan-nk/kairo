@@ -43,3 +43,45 @@ export interface AttendanceRecord {
   timetableSlot: string
   notes?: string
 }
+
+export type ConsensusStatus = 'Pending' | 'Likely' | 'Verified' | 'Auto Accepted'
+
+export interface ProxyReport {
+  id: string
+  subjectId: string
+  timetableSlotId: string
+  expectedSubject: string
+  actualSubject: string
+  room: string
+  faculty: string
+  reportCount: number
+  status: ConsensusStatus
+  date: string // YYYY-MM-DD
+  createdAt: string
+}
+
+export type LostAndFoundStatus = 'Lost' | 'Found' | 'Claimed'
+
+export interface LostAndFoundItem {
+  id: string
+  title: string
+  description?: string
+  category: string
+  location: string
+  date: string // YYYY-MM-DD
+  status: LostAndFoundStatus
+  question: string // Descriptive validation question for claims
+  contactInfo?: string
+  createdAt: string
+}
+
+export interface UserProfile {
+  id: string
+  name: string
+  rollNumber: string
+  department: string
+  semester: string
+  section: string
+  lastSyncDate?: string
+  officialBaselinePercentage?: number
+}

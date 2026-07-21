@@ -17,4 +17,7 @@ export const initDatabase = (db: IDBDatabase, oldVersion: number) => {
   if (oldVersion < 2) {
     db.createObjectStore(STORES.attendanceHistory, { keyPath: 'id' })
   }
+  if (oldVersion < 3) {
+    db.createObjectStore(STORES.profile, { keyPath: 'id' })
+  }
 }
