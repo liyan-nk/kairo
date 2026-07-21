@@ -1,5 +1,5 @@
 import { IndexedDbTodayRepository } from '../providers/IndexedDbTodayRepository'
-import { IndexedDbSubjectRepository } from '../providers/IndexedDbSubjectRepository'
+import { HttpSubjectRepository } from '../providers/HttpSubjectRepository'
 import { IndexedDbCampusRepository } from '../providers/IndexedDbCampusRepository'
 import { HttpProfileRepository } from '../providers/HttpProfileRepository'
 import { HttpAuthRepository } from '../providers/HttpAuthRepository'
@@ -29,7 +29,7 @@ export const createTodayRepository = (): TodayRepository => {
  * Prepares SubjectsPage dependency injection.
  */
 export const createSubjectRepository = (): SubjectRepository => {
-  return new IndexedDbSubjectRepository()
+  return new HttpSubjectRepository()
 }
 
 /**
