@@ -180,9 +180,18 @@ export const useToday = () => {
 
   // Apply non-destructive schedule overlays at render time
   const todayStr = new Date().toISOString().split('T')[0]
+  const todayDayOfWeek = useMemo(() => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    return days[new Date().getDay()]
+  }, [])
+
+  const todayTimeline = useMemo(() => {
+    return timeline.filter((item) => item.day === todayDayOfWeek)
+  }, [timeline, todayDayOfWeek])
+
   const overlaidTimeline = useMemo(() => {
-    return applyProxyOverlays(timeline, proxyReports, todayStr)
-  }, [timeline, proxyReports, todayStr])
+    return applyProxyOverlays(todayTimeline, proxyReports, todayStr)
+  }, [todayTimeline, proxyReports, todayStr])
 
   return {
     currentClass,

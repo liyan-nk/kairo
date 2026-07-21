@@ -3,7 +3,6 @@ import { STORES } from './schema'
 import {
   getMockCurrentClass,
   getMockNextClass,
-  getMockTimeline,
   getMockAttendanceSummary,
 } from '../../features/today/data/mockToday'
 import type { AttendanceRecord } from '../models'
@@ -67,9 +66,43 @@ async function ensureTodaySeeded(): Promise<void> {
 async function ensureTimetableSeeded(): Promise<void> {
   const timeline = await getAllFromStore(STORES.timetable)
   if (timeline.length === 0) {
-    const mockTimeline = getMockTimeline()
-    for (const item of mockTimeline) {
-      await putToStore(STORES.timetable, item)
+    const subjectsList = [
+      { name: 'Java Programming', room: 'Room 404', faculty: 'Dr. Sarah Jenkins' },
+      { name: 'Database Management Systems', room: 'Room 102', faculty: 'Prof. Alok Verma' },
+      { name: 'Morning Break', room: '', faculty: '' },
+      { name: 'Operating Systems', room: 'Room 102', faculty: 'Prof. Alok Verma' },
+      { name: 'Computer Networks', room: 'Room 404', faculty: 'Dr. Sarah Jenkins' },
+    ]
+
+    const timeSlots = [
+      '09:00 AM - 10:00 AM',
+      '10:00 AM - 11:00 AM',
+      '11:00 AM - 11:15 AM',
+      '11:15 AM - 12:15 PM',
+      '12:15 PM - 01:15 PM',
+    ]
+
+    const weekdays: ('Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri')[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
+
+    for (let dayIdx = 0; dayIdx < weekdays.length; dayIdx++) {
+      const day = weekdays[dayIdx]
+      for (let slotIdx = 0; slotIdx < 5; slotIdx++) {
+        // Shift subjects list slightly per day to create distinct weekday schedules
+        const shiftedIdx = (slotIdx + dayIdx) % 5
+        const isBreak = shiftedIdx === 2
+        const sub = subjectsList[shiftedIdx]
+
+        const item = {
+          id: `${day.toLowerCase()}_slot_${slotIdx + 1}`,
+          subject: sub.name,
+          time: timeSlots[slotIdx],
+          status: 'upcoming' as const,
+          room: isBreak ? undefined : sub.room,
+          faculty: isBreak ? undefined : sub.faculty,
+          day,
+        }
+        await putToStore(STORES.timetable, item)
+      }
     }
   }
 }

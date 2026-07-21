@@ -5,6 +5,7 @@ export interface ClassItem {
   status: 'completed' | 'current' | 'upcoming'
   room?: string
   faculty?: string
+  day?: 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri'
 }
 
 export interface AttendanceSummary {
