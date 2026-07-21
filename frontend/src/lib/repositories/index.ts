@@ -1,7 +1,7 @@
 import { IndexedDbTodayRepository } from '../providers/IndexedDbTodayRepository'
 import { IndexedDbSubjectRepository } from '../providers/IndexedDbSubjectRepository'
 import { IndexedDbCampusRepository } from '../providers/IndexedDbCampusRepository'
-import { IndexedDbProfileRepository } from '../providers/IndexedDbProfileRepository'
+import { HttpProfileRepository } from '../providers/HttpProfileRepository'
 import { HttpAuthRepository } from '../providers/HttpAuthRepository'
 import type { TodayRepository } from './TodayRepository'
 import type { SubjectRepository } from './SubjectRepository'
@@ -45,7 +45,7 @@ export const createCampusRepository = (): CampusRepository => {
  * Prepares ProfilePage dependency injection.
  */
 export const createProfileRepository = (): ProfileRepository => {
-  return new IndexedDbProfileRepository()
+  return new HttpProfileRepository()
 }
 
 /**
