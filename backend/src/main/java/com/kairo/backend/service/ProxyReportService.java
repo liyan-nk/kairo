@@ -59,6 +59,10 @@ public class ProxyReportService {
         TimetableSlotEntity slot = timetableSlotRepository.findByIdAndDeletedAtIsNull(request.getTimetableSlotId())
                 .orElseThrow(() -> new ResourceNotFoundException("Timetable slot not found: " + request.getTimetableSlotId()));
 
+        if (slot.getEnrollment() != null && !slot.getEnrollment().getUserId().equals(reporterId)) {
+            throw new org.springframework.security.access.AccessDeniedException("You can only report discrepancies for your own timetable slots.");
+        }
+
         String expectedSubject = slot.getSubjectName() != null ? slot.getSubjectName() :
                 (slot.getEnrollment() != null && slot.getEnrollment().getCourse() != null ? slot.getEnrollment().getCourse().getName() : "");
 
