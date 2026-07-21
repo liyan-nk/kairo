@@ -3,13 +3,15 @@ import Typography from '../components/Typography'
 import Skeleton from '../components/Skeleton'
 import Button from '../components/Button'
 import StudentIdentityCard from './profile/components/StudentIdentityCard'
-import AttendanceSyncCard from './profile/components/AttendanceSyncCard'
-import AboutKairoCard from './profile/components/AboutKairoCard'
+import AppearanceCard from './profile/components/AppearanceCard'
+import AboutLinkCard from './profile/components/AboutLinkCard'
+import { useAuth } from '../app/AuthContext'
 import { createProfileRepository } from '../lib/repositories'
 import type { UserProfile } from '../lib/models'
 
 export const ProfilePage: React.FC = () => {
   const profileRepo = useMemo(() => createProfileRepository(), [])
+  const { logout } = useAuth()
 
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -91,14 +93,24 @@ export const ProfilePage: React.FC = () => {
       {/* Identity card */}
       <StudentIdentityCard profile={profile} />
 
-      {/* Sync official baseline card */}
-      <AttendanceSyncCard
-        lastSyncDate={profile.lastSyncDate}
-        officialBaselinePercentage={profile.officialBaselinePercentage}
-      />
+      {/* Appearance card */}
+      <AppearanceCard />
 
-      {/* About App details */}
-      <AboutKairoCard />
+      {/* About App link */}
+      <AboutLinkCard />
+
+      {/* Logout button */}
+      <div className="pt-2">
+        <Button
+          variant="secondary"
+          size="md"
+          fullWidth
+          onClick={logout}
+          className="text-brand-danger hover:bg-brand-danger/10 border-brand-danger/20"
+        >
+          Sign Out
+        </Button>
+      </div>
     </div>
   )
 }
