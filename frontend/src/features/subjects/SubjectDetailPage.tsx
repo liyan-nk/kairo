@@ -8,17 +8,20 @@ import { createSubjectRepository } from '../../lib/repositories'
 import type { Subject, AttendanceRecord } from '../../lib/models'
 import { deriveSubjectDetailViewModel } from './utils/subjectDetailViewModel'
 import { deriveProxyPlannerViewModel } from './utils/proxyPlannerViewModel'
+import { deriveSubjectInsightsViewModel } from './utils/attendanceInsightsViewModel'
 import type { SimulationResult } from './utils/attendanceForecast'
 import AttendanceRing from './components/AttendanceRing'
 import RiskIndicator from './components/RiskIndicator'
 import AttendanceRiskTimeline from './components/AttendanceRiskTimeline'
 import AttendanceSimulatorCard from './components/AttendanceSimulatorCard'
 import AttendanceHistoryList from './components/AttendanceHistoryList'
+import AttendanceTrendCard from './components/AttendanceTrendCard'
+import AttendanceStreakCard from './components/AttendanceStreakCard'
 
 /**
  * Subject Details Page.
  * Displays progress ring, canonical Proxy Planner recommendation, semester risk timeline,
- * interactive simulation tool, and chronological log list.
+ * interactive simulation tool, streak/trend analytics, and chronological log list.
  */
 export const SubjectDetailPage: React.FC = () => {
   const { subjectId } = useParams<{ subjectId: string }>()
@@ -81,6 +84,11 @@ export const SubjectDetailPage: React.FC = () => {
     if (!subject) return null
     return deriveProxyPlannerViewModel(subject)
   }, [subject])
+
+  const insightsVm = useMemo(() => {
+    if (!subject) return null
+    return deriveSubjectInsightsViewModel(subject, history)
+  }, [subject, history])
 
   const handleBack = () => {
     navigate('/subjects')
@@ -173,6 +181,23 @@ export const SubjectDetailPage: React.FC = () => {
         subject={subject}
         onSimulationChange={setSimulatedResult}
       />
+
+      {/* Attendance Trends & Streaks */}
+      {insightsVm && (
+        <section className="space-y-4">
+          <AttendanceStreakCard
+            longestPresentStreak={insightsVm.longestPresentStreak}
+            longestAbsentStreak={insightsVm.longestAbsentStreak}
+            currentStreakType={insightsVm.currentStreakType}
+            currentStreakCount={insightsVm.currentStreakCount}
+          />
+          <AttendanceTrendCard
+            weeklyTrend={insightsVm.weeklyTrend}
+            monthlyTrend={insightsVm.monthlyTrend}
+            trendStatus={insightsVm.trendStatus}
+          />
+        </section>
+      )}
 
       {/* Attendance Log Chronological History */}
       <section className="space-y-3">
