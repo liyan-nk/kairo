@@ -75,7 +75,7 @@ public class SubjectServiceUnitTest {
                 .build();
 
         when(enrollmentRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(List.of(enrollment));
-        when(baselineRepository.findTopByEnrollmentIdOrderByPublishedDateDesc(enrollmentId)).thenReturn(Optional.of(baseline));
+        when(baselineRepository.findAllByEnrollmentIdIn(List.of(enrollmentId))).thenReturn(List.of(baseline));
 
         List<CourseResponse> response = subjectService.getEnrolledCourses(userId);
 
