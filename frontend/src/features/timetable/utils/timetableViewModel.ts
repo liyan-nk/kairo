@@ -11,7 +11,15 @@ import {
   type DayStatus,
 } from './liveSchedule'
 
+export interface ScheduleState {
+  type: 'current' | 'break' | 'finished' | 'empty'
+  slot?: ClassItem
+  nextSlot?: ClassItem
+  message: string
+}
+
 export interface TimetableViewModel {
+  scheduleState: ScheduleState
   currentClass: CurrentClass | null
   nextClass: NextClass | null
   currentClassSlotId: string | null
@@ -98,6 +106,34 @@ export function deriveTimetableViewModel(
       break
   }
 
+  // Structured schedule state model
+  let scheduleStateType: 'current' | 'break' | 'finished' | 'empty' = 'empty'
+  let scheduleMessage = ''
+
+  if (dayStatus === 'weekend' || (dayStatus === 'before-first' && !currentSlot && !nextSlot)) {
+    scheduleStateType = 'empty'
+    scheduleMessage = dayStatus === 'weekend' ? 'No classes today' : 'No classes scheduled'
+  } else if (currentSlot) {
+    scheduleStateType = 'current'
+    scheduleMessage = 'Current Class'
+  } else if (isBreak || dayStatus === 'before-first') {
+    scheduleStateType = 'break'
+    if (dayStatus === 'lunch-break') scheduleMessage = 'Lunch Break'
+    else if (dayStatus === 'short-break') scheduleMessage = 'Morning Break'
+    else if (dayStatus === 'before-first') scheduleMessage = 'Before First Class'
+    else scheduleMessage = 'Free Period'
+  } else if (dayStatus === 'finished') {
+    scheduleStateType = 'finished'
+    scheduleMessage = 'Classes finished for today'
+  }
+
+  const scheduleState: ScheduleState = {
+    type: scheduleStateType,
+    slot: currentSlot ? currentSlot.item : undefined,
+    nextSlot: nextSlot ? nextSlot.item : undefined,
+    message: scheduleMessage,
+  }
+
   // Derive visual timeline item statuses (completed, current, upcoming)
   const parsedSlots = getParsedSlots(timetable)
   const timelineItems: ClassItem[] = parsedSlots.map((slot) => {
@@ -117,6 +153,7 @@ export function deriveTimetableViewModel(
   })
 
   return {
+    scheduleState,
     currentClass,
     nextClass,
     currentClassSlotId,
