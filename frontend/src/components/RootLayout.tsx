@@ -10,6 +10,7 @@ export const RootLayout: React.FC = () => {
   // Map route pathname to the active TabKey
   const getActiveTab = (): TabKey => {
     const path = location.pathname
+    if (path.startsWith('/timetable')) return 'timetable'
     if (path.startsWith('/subjects')) return 'subjects'
     if (path.startsWith('/campus')) return 'campus'
     if (path.startsWith('/profile')) return 'profile'

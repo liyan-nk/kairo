@@ -1,7 +1,7 @@
 import React from 'react'
-import { Home, BookOpen, School, User } from 'lucide-react'
+import { Home, Calendar, BookOpen, School, User } from 'lucide-react'
 
-export type TabKey = 'home' | 'subjects' | 'campus' | 'profile'
+export type TabKey = 'home' | 'timetable' | 'subjects' | 'campus' | 'profile'
 
 interface BottomNavigationProps {
   activeTab: TabKey
@@ -17,6 +17,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { key: 'home', label: 'Home', icon: Home },
+  { key: 'timetable', label: 'Timetable', icon: Calendar },
   { key: 'subjects', label: 'Subjects', icon: BookOpen },
   { key: 'campus', label: 'Campus', icon: School },
   { key: 'profile', label: 'Profile', icon: User },
