@@ -278,6 +278,14 @@ Creates or updates a period attendance entry.
 
 ---
 
+#### `DELETE /api/v1/attendance-logs/{id}`
+Deletes/revokes an attendance period log entry.
+
+- **Response `204 No Content`**
+- **Status Codes**: `204 No Content`, `401 Unauthorized`, `404 Not Found`
+
+---
+
 ### 2.7 Campus Community Resource (`/api/v1/campus`)
 
 #### `GET /api/v1/campus/proxy-reports`
