@@ -51,4 +51,13 @@ public class AttendanceController {
         AttendanceLogResponse response = attendanceService.updateAttendance(principal.getId(), logId, request);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/attendance-logs/{id}")
+    public ResponseEntity<Void> deleteAttendance(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable("id") UUID logId
+    ) {
+        attendanceService.deleteAttendance(principal.getId(), logId);
+        return ResponseEntity.noContent().build();
+    }
 }

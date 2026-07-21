@@ -105,4 +105,22 @@ public class AttendanceService {
                 .map(AttendanceMapper::toAttendanceLogResponse)
                 .toList();
     }
+
+    @Transactional
+    public void deleteAttendance(UUID userId, UUID logId) {
+        AttendanceLogEntity log = attendanceLogRepository.findByIdAndUserIdAndDeletedAtIsNull(logId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Attendance log not found: " + logId));
+
+        EnrollmentEntity enrollment = enrollmentRepository.findByIdAndDeletedAtIsNull(log.getEnrollmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Enrollment not found for log: " + logId));
+
+        enrollment.setTotalClasses(Math.max(0, enrollment.getTotalClasses() - 1));
+        if (log.getStatus() == AttendanceStatusEnum.PRESENT) {
+            enrollment.setAttendedClasses(Math.max(0, enrollment.getAttendedClasses() - 1));
+        }
+        enrollmentRepository.save(enrollment);
+
+        log.setDeletedAt(java.time.Instant.now());
+        attendanceLogRepository.save(log);
+    }
 }

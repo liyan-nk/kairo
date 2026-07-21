@@ -147,4 +147,34 @@ public class AttendanceServiceUnitTest {
         assertEquals(10, enrollment.getTotalClasses());
         verify(enrollmentRepository).save(enrollment);
     }
+
+    @Test
+    @DisplayName("deleteAttendance should decrement counters and set deletedAt timestamp")
+    void deleteAttendance_Success() {
+        UUID logId = UUID.randomUUID();
+
+        AttendanceLogEntity log = AttendanceLogEntity.builder()
+                .id(logId)
+                .userId(userId)
+                .enrollmentId(enrollmentId)
+                .status(AttendanceStatusEnum.PRESENT)
+                .build();
+
+        EnrollmentEntity enrollment = EnrollmentEntity.builder()
+                .id(enrollmentId)
+                .attendedClasses(5)
+                .totalClasses(10)
+                .build();
+
+        when(attendanceLogRepository.findByIdAndUserIdAndDeletedAtIsNull(logId, userId)).thenReturn(Optional.of(log));
+        when(enrollmentRepository.findByIdAndDeletedAtIsNull(enrollmentId)).thenReturn(Optional.of(enrollment));
+
+        attendanceService.deleteAttendance(userId, logId);
+
+        assertEquals(4, enrollment.getAttendedClasses());
+        assertEquals(9, enrollment.getTotalClasses());
+        assertNotNull(log.getDeletedAt());
+        verify(enrollmentRepository).save(enrollment);
+        verify(attendanceLogRepository).save(log);
+    }
 }
