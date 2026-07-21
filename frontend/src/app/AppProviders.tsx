@@ -1,6 +1,8 @@
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { ToastProvider } from './ToastProvider'
+import { ThemeProvider } from './ThemeContext'
+import { AuthProvider } from './AuthContext'
 
 interface AppProvidersProps {
   children: React.ReactNode
@@ -9,7 +11,11 @@ interface AppProvidersProps {
 export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
   return (
     <BrowserRouter>
-      <ToastProvider>{children}</ToastProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   )
 }

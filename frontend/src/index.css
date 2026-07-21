@@ -34,7 +34,7 @@
   --animate-state: 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-:root {
+:root, :root[data-theme="light"] {
   /* Colors - Light Mode */
   --bg: #ffffff;
   --surface: #ffffff;
@@ -54,26 +54,24 @@
   --attendance-red: #d32f2f;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Colors - Dark Mode */
-    --bg: #090909;
-    --surface: #151515;
-    --surface-secondary: #1f1f1f;
-    --border-card: #303030;
-    --text-primary: #ffffff;
-    --text-secondary: #a5a5a5;
+:root[data-theme="dark"] {
+  /* Colors - Dark Mode */
+  --bg: #090909;
+  --surface: #151515;
+  --surface-secondary: #1f1f1f;
+  --border-card: #303030;
+  --text-primary: #ffffff;
+  --text-secondary: #a5a5a5;
 
-    --brand-success: #4caf50;
-    --brand-warning: #ffb74d;
-    --brand-danger: #ef5350;
-    --brand-info: #42a5f5;
+  --brand-success: #4caf50;
+  --brand-warning: #ffb74d;
+  --brand-danger: #ef5350;
+  --brand-info: #42a5f5;
 
-    --attendance-green: #4caf50;
-    --attendance-yellow: #ffb74d;
-    --attendance-orange: #ff9800;
-    --attendance-red: #ef5350;
-  }
+  --attendance-green: #4caf50;
+  --attendance-yellow: #ffb74d;
+  --attendance-orange: #ff9800;
+  --attendance-red: #ef5350;
 }
 
 /* Base resets conforming to native mobile standards */
