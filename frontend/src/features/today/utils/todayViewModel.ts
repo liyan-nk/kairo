@@ -1,5 +1,7 @@
-import type { ClassItem, CurrentClass, NextClass } from '../../../lib/models'
+import type { ClassItem, CurrentClass, NextClass, AttendanceRecord } from '../../../lib/models'
 import type { ViewState } from '../types'
+
+export type AttendanceState = 'notMarked' | 'present' | 'absent'
 
 export interface TodayViewModel {
   computedState: ViewState
@@ -8,6 +10,8 @@ export interface TodayViewModel {
   timeline: ClassItem[]
   minutesLeft: number | null
   canMarkAttendance: boolean
+  attendanceState: AttendanceState
+  recordedRecordId: string | null
 }
 
 /**
@@ -23,6 +27,7 @@ export function deriveTodayViewModel(params: {
   realNextClass: NextClass | null
   realTimeline: ClassItem[]
   realMinutesLeft: number
+  attendanceRecord?: AttendanceRecord | null
 }): TodayViewModel {
   const {
     viewState,
@@ -33,6 +38,7 @@ export function deriveTodayViewModel(params: {
     realNextClass,
     realTimeline,
     realMinutesLeft,
+    attendanceRecord = null,
   } = params
 
   // Determine computedState (dev switcher overrides real state)
@@ -45,7 +51,6 @@ export function deriveTodayViewModel(params: {
   let nextClass: NextClass | null = null
   let timeline: ClassItem[] = []
   let minutesLeft: number | null = null
-  let canMarkAttendance = false
 
   switch (computedState) {
     case 'active':
@@ -62,7 +67,6 @@ export function deriveTodayViewModel(params: {
         return { ...item, status: 'upcoming' }
       })
       minutesLeft = realMinutesLeft
-      canMarkAttendance = true
       break
 
     case 'beforeFirst':
@@ -76,7 +80,6 @@ export function deriveTodayViewModel(params: {
       }
       timeline = realTimeline.map((item) => ({ ...item, status: 'upcoming' }))
       minutesLeft = null
-      canMarkAttendance = false
       break
 
     case 'freePeriod':
@@ -98,7 +101,6 @@ export function deriveTodayViewModel(params: {
         return { ...item, status: 'upcoming' }
       })
       minutesLeft = null
-      canMarkAttendance = false
       break
 
     case 'dayEnded':
@@ -112,7 +114,6 @@ export function deriveTodayViewModel(params: {
       }
       timeline = realTimeline.map((item) => ({ ...item, status: 'completed' }))
       minutesLeft = null
-      canMarkAttendance = false
       break
 
     case 'holiday':
@@ -120,12 +121,18 @@ export function deriveTodayViewModel(params: {
       nextClass = null
       timeline = [] // Hidden timeline unless holiday schedule data exists
       minutesLeft = null
-      canMarkAttendance = false
       break
 
     default:
       break
   }
+
+  const attendanceState: AttendanceState = attendanceRecord
+    ? (attendanceRecord.status === 'Present' ? 'present' : 'absent')
+    : 'notMarked'
+
+  const recordedRecordId = attendanceRecord ? attendanceRecord.id : null
+  const canMarkAttendance = computedState === 'active' && currentClass !== null && attendanceState === 'notMarked'
 
   return {
     computedState,
@@ -134,5 +141,7 @@ export function deriveTodayViewModel(params: {
     timeline,
     minutesLeft,
     canMarkAttendance,
+    attendanceState,
+    recordedRecordId,
   }
 }

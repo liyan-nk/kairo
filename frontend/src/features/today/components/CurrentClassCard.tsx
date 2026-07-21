@@ -1,16 +1,21 @@
 import React from 'react'
 import Card from '../../../components/Card'
 import Typography from '../../../components/Typography'
-import Button from '../../../components/Button'
+import AttendanceActionCard from './AttendanceActionCard'
+import AttendanceRecordedCard from './AttendanceRecordedCard'
+import type { AttendanceState } from '../utils/todayViewModel'
 
 interface CurrentClassCardProps {
   subject: string
   room: string
   faculty: string
   minutesLeft: number
-  attendance: 'present' | 'absent' | null
-  onMarkAttendance: (status: 'present' | 'absent') => void
+  attendanceState: AttendanceState
+  recordedRecordId: string | null
+  onMarkAttendance: (status: 'Present' | 'Absent') => void
+  onUndoAttendance: (recordId: string) => void
   onReportChange: () => void
+  isSubmitting?: boolean
 }
 
 export const CurrentClassCard: React.FC<CurrentClassCardProps> = ({
@@ -18,9 +23,12 @@ export const CurrentClassCard: React.FC<CurrentClassCardProps> = ({
   room,
   faculty,
   minutesLeft,
-  attendance,
+  attendanceState,
+  recordedRecordId,
   onMarkAttendance,
+  onUndoAttendance,
   onReportChange,
+  isSubmitting = false,
 }) => {
   return (
     <Card variant="default" padding="lg" className="space-y-4">
@@ -43,22 +51,20 @@ export const CurrentClassCard: React.FC<CurrentClassCardProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <Button
-          variant={attendance === 'present' ? 'primary' : 'secondary'}
-          fullWidth
-          onClick={() => onMarkAttendance('present')}
-        >
-          Present
-        </Button>
-        <Button
-          variant={attendance === 'absent' ? 'danger' : 'secondary'}
-          fullWidth
-          onClick={() => onMarkAttendance('absent')}
-        >
-          Absent
-        </Button>
-      </div>
+      {/* Action / Feedback Section */}
+      {attendanceState === 'notMarked' ? (
+        <AttendanceActionCard
+          onMarkPresent={() => onMarkAttendance('Present')}
+          onMarkAbsent={() => onMarkAttendance('Absent')}
+          disabled={isSubmitting}
+        />
+      ) : (
+        <AttendanceRecordedCard
+          status={attendanceState}
+          onUndo={() => recordedRecordId && onUndoAttendance(recordedRecordId)}
+          disabled={isSubmitting}
+        />
+      )}
 
       <div className="text-center pt-1">
         <button

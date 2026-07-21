@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { AlertCircle } from 'lucide-react'
 import Typography from '../../components/Typography'
 import Skeleton from '../../components/Skeleton'
 import useToast from '../../hooks/useToast'
+import { createSubjectRepository } from '../../lib/repositories'
+import type { Subject } from '../../lib/models'
 import type { ViewState } from './types'
 import useTodayClock from './hooks/useTodayClock'
 import useToday from './hooks/useToday'
@@ -17,11 +19,13 @@ import { deriveTodayViewModel } from './utils/todayViewModel'
 export const TodayPage: React.FC = () => {
   const { showToast } = useToast()
   const { simulatedMinutesLeft } = useTodayClock()
+  const subjectRepository = useMemo(() => createSubjectRepository(), [])
   const {
     currentClass: realCurrentClass,
     nextClass: realNextClass,
     timeline: realTimeline,
     attendanceSummary,
+    attendanceRecord,
     isLoading,
     hasError,
     reload,
@@ -29,13 +33,44 @@ export const TodayPage: React.FC = () => {
 
   // Dev-friendly state switcher toggle
   const [viewState, setViewState] = useState<ViewState>('active')
-  const [attendance, setAttendance] = useState<'present' | 'absent' | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleMarkAttendance = (status: 'present' | 'absent') => {
-    setAttendance(status)
-    showToast('Attendance Updated ✓')
-    if (navigator.vibrate) {
-      navigator.vibrate(10) // Light haptic tick
+  const handleMarkAttendance = async (status: 'Present' | 'Absent') => {
+    if (!viewModel.currentClass || isSubmitting) return
+    setIsSubmitting(true)
+    try {
+      const subjects = await subjectRepository.getSubjects()
+      const subjectObj = subjects.find((s: Subject) => s.name === viewModel.currentClass?.subject)
+      if (subjectObj) {
+        const slotId = 'slot_current'
+        await subjectRepository.markAttendance(subjectObj.id, slotId, status)
+        await reload()
+        showToast(`Attendance Recorded (${status}) ✓`)
+        if (navigator.vibrate) {
+          navigator.vibrate(10)
+        }
+      }
+    } catch {
+      showToast('Failed to record attendance')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleUndoAttendance = async (recordId: string) => {
+    if (isSubmitting) return
+    setIsSubmitting(true)
+    try {
+      await subjectRepository.undoAttendance(recordId)
+      await reload()
+      showToast('Attendance Undone')
+      if (navigator.vibrate) {
+        navigator.vibrate(10)
+      }
+    } catch {
+      showToast('Failed to undo attendance')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -52,6 +87,7 @@ export const TodayPage: React.FC = () => {
     realNextClass,
     realTimeline,
     realMinutesLeft: simulatedMinutesLeft,
+    attendanceRecord,
   })
 
   // Render Skeletons for Loading State
@@ -125,9 +161,12 @@ export const TodayPage: React.FC = () => {
                 room={viewModel.currentClass.room}
                 faculty={viewModel.currentClass.faculty}
                 minutesLeft={viewModel.minutesLeft ?? simulatedMinutesLeft}
-                attendance={attendance}
+                attendanceState={viewModel.attendanceState}
+                recordedRecordId={viewModel.recordedRecordId}
                 onMarkAttendance={handleMarkAttendance}
+                onUndoAttendance={handleUndoAttendance}
                 onReportChange={() => showToast('Discrepancy Reported ✓')}
+                isSubmitting={isSubmitting}
               />
             )
           )}
