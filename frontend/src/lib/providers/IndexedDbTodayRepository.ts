@@ -1,5 +1,5 @@
 import type { TodayRepository } from '../repositories/TodayRepository'
-import type { ClassItem, AttendanceSummary, CurrentClass, NextClass } from '../models'
+import type { ClassItem, CurrentClass, NextClass } from '../models'
 import { getFromStore, getAllFromStore } from '../storage/stores'
 import { STORES } from '../storage/schema'
 import { bootstrapDatabase } from '../storage/bootstrap'
@@ -40,19 +40,6 @@ export class IndexedDbTodayRepository implements TodayRepository {
       return items
     } catch (err) {
       throw new Error('TIMETABLE_FETCH_FAILED', { cause: err })
-    }
-  }
-
-  async getAttendanceSummary(): Promise<AttendanceSummary> {
-    await this.ensureInitialized()
-    try {
-      const data = await getFromStore<{ key: string; value: AttendanceSummary }>(STORES.today, 'attendanceSummary')
-      if (!data) {
-        throw new Error('ATTENDANCE_FETCH_FAILED')
-      }
-      return data.value
-    } catch (err) {
-      throw new Error('ATTENDANCE_FETCH_FAILED', { cause: err })
     }
   }
 }

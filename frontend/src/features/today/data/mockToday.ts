@@ -1,4 +1,4 @@
-import type { ClassItem, AttendanceSummary } from '../../../lib/models'
+import type { ClassItem } from '../../../lib/models'
 
 export const getMockCurrentClass = () => {
   return {
@@ -25,11 +25,4 @@ export const getMockTimeline = (): ClassItem[] => {
     { id: '4', subject: 'Operating Systems', time: '11:15 AM - 12:15 PM', status: 'upcoming' },
     { id: '5', subject: 'Computer Networks', time: '12:15 PM - 01:15 PM', status: 'upcoming' },
   ]
-}
-
-export const getMockAttendanceSummary = (): AttendanceSummary => {
-  return {
-    status: 'Watch Carefully',
-    percentage: 78,
-  }
 }

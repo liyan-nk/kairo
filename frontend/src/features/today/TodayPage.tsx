@@ -26,7 +26,6 @@ export const TodayPage: React.FC = () => {
     currentClass: realCurrentClass,
     nextClass: realNextClass,
     timeline: realTimeline,
-    attendanceSummary,
     attendanceRecord,
     isLoading,
     hasError,
@@ -84,7 +83,7 @@ export const TodayPage: React.FC = () => {
   }
 
   // Determine if absolutely any cached/usable data is loaded in state
-  const hasUsableData = realTimeline.length > 0 || attendanceSummary !== null || realCurrentClass !== null || realNextClass !== null
+  const hasUsableData = realTimeline.length > 0 || realCurrentClass !== null || realNextClass !== null
 
   // Compute presentation state using the pure view-model mapper
   const viewModel = deriveTodayViewModel({
@@ -99,7 +98,6 @@ export const TodayPage: React.FC = () => {
     attendanceRecord,
   })
 
-  const activeCurrentClass = liveTimetableVm.currentClass || viewModel.currentClass
   const activeNextClass = liveTimetableVm.nextClass || viewModel.nextClass
 
   // Render Skeletons for Loading State
@@ -158,42 +156,91 @@ export const TodayPage: React.FC = () => {
       {/* Main Content Areas */}
       <div className="space-y-6">
         
-        {/* Current Class Section */}
-        <section className="space-y-2">
-          <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
-            Current Class
-          </Typography>
-          
-          {['holiday', 'dayEnded', 'beforeFirst', 'freePeriod'].includes(viewModel.computedState) || !activeCurrentClass ? (
+        {/* Explicit Schedule States Rendering */}
+        {liveTimetableVm.scheduleState.type === 'current' && liveTimetableVm.currentClass && (
+          <section className="space-y-2">
+            <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
+              Current Class
+            </Typography>
+            <CurrentClassCard
+              subject={liveTimetableVm.currentClass.subject}
+              room={liveTimetableVm.currentClass.room}
+              faculty={liveTimetableVm.currentClass.faculty}
+              minutesLeft={liveTimetableVm.remainingMinutes}
+              countdownText={liveTimetableVm.countdownText}
+              progress={liveTimetableVm.progress}
+              currentTimeLabel={currentTimeLabel}
+              attendanceState={viewModel.attendanceState}
+              recordedRecordId={viewModel.recordedRecordId}
+              onMarkAttendance={handleMarkAttendance}
+              onUndoAttendance={handleUndoAttendance}
+              onReportChange={() => showToast('Discrepancy Reported ✓')}
+              isSubmitting={isSubmitting}
+            />
+          </section>
+        )}
+
+        {liveTimetableVm.scheduleState.type === 'break' && (
+          <section className="space-y-2">
+            <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
+              {liveTimetableVm.scheduleState.message}
+            </Typography>
             <TodayEmptyState
-              viewState={liveTimetableVm.dayStatus === 'weekend' ? 'holiday' : (liveTimetableVm.dayStatus === 'finished' ? 'dayEnded' : viewModel.computedState)}
-              customTitle={liveTimetableVm.dayStatus === 'finished' ? "You're done for today." : (liveTimetableVm.dayStatus === 'weekend' ? "No classes today." : undefined)}
+              viewState="freePeriod"
+              customTitle={liveTimetableVm.scheduleState.message}
               customDescription={liveTimetableVm.dayStatusLabel}
               className="my-0 max-w-none w-full"
             />
-          ) : (
-            activeCurrentClass && (
-              <CurrentClassCard
-                subject={activeCurrentClass.subject}
-                room={activeCurrentClass.room}
-                faculty={activeCurrentClass.faculty}
-                minutesLeft={liveTimetableVm.remainingMinutes}
-                countdownText={liveTimetableVm.countdownText}
-                progress={liveTimetableVm.progress}
-                currentTimeLabel={currentTimeLabel}
-                attendanceState={viewModel.attendanceState}
-                recordedRecordId={viewModel.recordedRecordId}
-                onMarkAttendance={handleMarkAttendance}
-                onUndoAttendance={handleUndoAttendance}
-                onReportChange={() => showToast('Discrepancy Reported ✓')}
-                isSubmitting={isSubmitting}
-              />
-            )
-          )}
-        </section>
+          </section>
+        )}
 
-        {/* Next Class Section */}
-        {activeNextClass && (
+        {liveTimetableVm.scheduleState.type === 'finished' && (
+          <section className="space-y-4">
+            <div className="space-y-2">
+              <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
+                Classes Finished Today
+              </Typography>
+              <TodayEmptyState
+                viewState="dayEnded"
+                customTitle="You're done for today 🎉"
+                customDescription="All scheduled classes for today have ended."
+                className="my-0 max-w-none w-full"
+              />
+            </div>
+
+            {liveTimetableVm.scheduleState.tomorrowFirstSlot && (
+              <div className="space-y-2">
+                <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
+                  First Class Tomorrow
+                </Typography>
+                <NextClassCard
+                  subject={liveTimetableVm.scheduleState.tomorrowFirstSlot.subject}
+                  room={liveTimetableVm.scheduleState.tomorrowFirstSlot.room}
+                  faculty={liveTimetableVm.scheduleState.tomorrowFirstSlot.faculty}
+                  startTime={liveTimetableVm.scheduleState.tomorrowFirstSlot.startTime}
+                  nextCountdownText="Tomorrow"
+                />
+              </div>
+            )}
+          </section>
+        )}
+
+        {liveTimetableVm.scheduleState.type === 'empty' && (
+          <section className="space-y-2">
+            <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
+              No Classes Today
+            </Typography>
+            <TodayEmptyState
+              viewState={liveTimetableVm.dayStatus === 'weekend' ? 'holiday' : 'beforeFirst'}
+              customTitle={liveTimetableVm.dayStatus === 'weekend' ? 'No classes today' : 'No classes scheduled'}
+              customDescription={liveTimetableVm.dayStatus === 'weekend' ? 'Enjoy your weekend!' : 'Check back tomorrow.'}
+              className="my-0 max-w-none w-full"
+            />
+          </section>
+        )}
+
+        {/* Next Class Section (for 'current' or 'break' states) */}
+        {(liveTimetableVm.scheduleState.type === 'current' || liveTimetableVm.scheduleState.type === 'break') && activeNextClass && (
           <section className="space-y-2">
             <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
               Next Class

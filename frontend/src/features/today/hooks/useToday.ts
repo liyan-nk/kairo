@@ -6,7 +6,6 @@ import {
 } from '../../../lib/repositories'
 import type {
   ClassItem,
-  AttendanceSummary,
   CurrentClass,
   NextClass,
   AttendanceRecord,
@@ -23,7 +22,6 @@ export const useToday = () => {
   const [nextClass, setNextClass] = useState<NextClass | null>(null)
   const [timeline, setTimeline] = useState<ClassItem[]>([])
   const [proxyReports, setProxyReports] = useState<ProxyReport[]>([])
-  const [attendanceSummary, setAttendanceSummary] = useState<AttendanceSummary | null>(null)
   const [attendanceRecord, setAttendanceRecord] = useState<AttendanceRecord | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
@@ -32,11 +30,10 @@ export const useToday = () => {
     setIsLoading(true)
     setHasError(false)
     try {
-      const [currRes, nextRes, tlRes, summaryRes, subjectsRes, reportsRes] = await Promise.allSettled([
+      const [currRes, nextRes, tlRes, subjectsRes, reportsRes] = await Promise.allSettled([
         repository.getCurrentClass(),
         repository.getNextClass(),
         repository.getTimeline(),
-        repository.getAttendanceSummary(),
         subjectRepository.getSubjects(),
         campusRepository.getProxyReports(),
       ])
@@ -57,12 +54,6 @@ export const useToday = () => {
 
       if (tlRes.status === 'fulfilled') {
         setTimeline(tlRes.value)
-      } else {
-        anyFailure = true
-      }
-
-      if (summaryRes.status === 'fulfilled') {
-        setAttendanceSummary(summaryRes.value)
       } else {
         anyFailure = true
       }
@@ -102,11 +93,10 @@ export const useToday = () => {
 
     const fetchData = async () => {
       try {
-        const [currRes, nextRes, tlRes, summaryRes, subjectsRes, reportsRes] = await Promise.allSettled([
+        const [currRes, nextRes, tlRes, subjectsRes, reportsRes] = await Promise.allSettled([
           repository.getCurrentClass(),
           repository.getNextClass(),
           repository.getTimeline(),
-          repository.getAttendanceSummary(),
           subjectRepository.getSubjects(),
           campusRepository.getProxyReports(),
         ])
@@ -129,12 +119,6 @@ export const useToday = () => {
 
         if (tlRes.status === 'fulfilled') {
           setTimeline(tlRes.value)
-        } else {
-          anyFailure = true
-        }
-
-        if (summaryRes.status === 'fulfilled') {
-          setAttendanceSummary(summaryRes.value)
         } else {
           anyFailure = true
         }
@@ -197,7 +181,6 @@ export const useToday = () => {
     currentClass,
     nextClass,
     timeline: overlaidTimeline,
-    attendanceSummary,
     attendanceRecord,
     isLoading,
     hasError,

@@ -1,10 +1,9 @@
 import type { TodayRepository } from '../repositories/TodayRepository'
-import type { ClassItem, AttendanceSummary, CurrentClass, NextClass } from '../models'
+import type { ClassItem, CurrentClass, NextClass } from '../models'
 import {
   getMockCurrentClass,
   getMockNextClass,
   getMockTimeline,
-  getMockAttendanceSummary,
 } from '../../features/today/data/mockToday'
 
 /**
@@ -36,15 +35,6 @@ export class MockTodayRepository implements TodayRepository {
       return data
     } catch (err) {
       throw new Error('TIMETABLE_FETCH_FAILED', { cause: err })
-    }
-  }
-
-  async getAttendanceSummary(): Promise<AttendanceSummary> {
-    try {
-      const data = getMockAttendanceSummary()
-      return data
-    } catch (err) {
-      throw new Error('ATTENDANCE_FETCH_FAILED', { cause: err })
     }
   }
 }

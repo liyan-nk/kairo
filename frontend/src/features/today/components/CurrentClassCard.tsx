@@ -48,9 +48,11 @@ export const CurrentClassCard: React.FC<CurrentClassCardProps> = ({
           </Typography>
         </div>
         <div className="text-right shrink-0">
-          <Typography variant="body" weight="bold" className="text-brand-info leading-none">
-            {countdownText || `Ends in ${minutesLeft} min`}
-          </Typography>
+          {minutesLeft > 0 && (
+            <Typography variant="body" weight="bold" className="text-brand-info leading-none">
+              {countdownText || `Ends in ${minutesLeft} min`}
+            </Typography>
+          )}
           {currentTimeLabel && (
             <Typography variant="micro" color="secondary" className="block mt-1 font-medium">
               {currentTimeLabel}

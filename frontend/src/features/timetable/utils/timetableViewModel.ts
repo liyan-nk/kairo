@@ -15,6 +15,7 @@ export interface ScheduleState {
   type: 'current' | 'break' | 'finished' | 'empty'
   slot?: ClassItem
   nextSlot?: ClassItem
+  tomorrowFirstSlot?: NextClass
   message: string
 }
 
@@ -106,6 +107,22 @@ export function deriveTimetableViewModel(
       break
   }
 
+  // Derive visual timeline item statuses (completed, current, upcoming)
+  const parsedSlots = getParsedSlots(timetable)
+
+  // Determine tomorrow's first class when dayStatus === 'finished'
+  let tomorrowFirstSlot: NextClass | undefined = undefined
+  if (dayStatus === 'finished' && parsedSlots.length > 0) {
+    const firstItem = parsedSlots[0].item
+    const startTime = firstItem.time.split('-')[0].trim()
+    tomorrowFirstSlot = {
+      subject: firstItem.subject,
+      room: firstItem.room || 'TBD',
+      faculty: firstItem.faculty || 'Faculty',
+      startTime,
+    }
+  }
+
   // Structured schedule state model
   let scheduleStateType: 'current' | 'break' | 'finished' | 'empty' = 'empty'
   let scheduleMessage = ''
@@ -131,11 +148,10 @@ export function deriveTimetableViewModel(
     type: scheduleStateType,
     slot: currentSlot ? currentSlot.item : undefined,
     nextSlot: nextSlot ? nextSlot.item : undefined,
+    tomorrowFirstSlot,
     message: scheduleMessage,
   }
 
-  // Derive visual timeline item statuses (completed, current, upcoming)
-  const parsedSlots = getParsedSlots(timetable)
   const timelineItems: ClassItem[] = parsedSlots.map((slot) => {
     let status: 'completed' | 'current' | 'upcoming'
     if (currentMin >= slot.endMinutes) {

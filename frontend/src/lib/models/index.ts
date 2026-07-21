@@ -8,11 +8,6 @@ export interface ClassItem {
   day?: 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri'
 }
 
-export interface AttendanceSummary {
-  status: string
-  percentage: number
-}
-
 export interface CurrentClass {
   subject: string
   room: string

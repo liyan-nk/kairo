@@ -197,33 +197,3 @@ export function calculateRiskScore(subject: Subject): number {
   if (percentage >= 65) return 75
   return 100
 }
-
-/**
- * Computes overall semester health status, score, and average attendance.
- */
-export function calculateSemesterHealth(subjects: Subject[]): {
-  semesterHealth: SemesterHealthStatus
-  healthScore: number
-  averageAttendance: number
-} {
-  if (!subjects || subjects.length === 0) {
-    return { semesterHealth: 'Healthy', healthScore: 100, averageAttendance: 100 }
-  }
-
-  const totalAttended = subjects.reduce((acc, s) => acc + s.attendedClasses, 0)
-  const totalClasses = subjects.reduce((acc, s) => acc + s.totalClasses, 0)
-  const averageAttendance = totalClasses > 0 ? Math.round((totalAttended / totalClasses) * 100) : 100
-
-  let semesterHealth: SemesterHealthStatus = 'Healthy'
-  if (averageAttendance < 75) {
-    semesterHealth = 'Critical'
-  } else if (averageAttendance < 80 || subjects.some((s) => (s.attendedClasses / s.totalClasses) < 0.75)) {
-    semesterHealth = 'At Risk'
-  }
-
-  return {
-    semesterHealth,
-    healthScore: averageAttendance,
-    averageAttendance,
-  }
-}

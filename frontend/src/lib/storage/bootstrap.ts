@@ -3,7 +3,6 @@ import { STORES } from './schema'
 import {
   getMockCurrentClass,
   getMockNextClass,
-  getMockAttendanceSummary,
 } from '../../features/today/data/mockToday'
 import type { AttendanceRecord } from '../models'
 
@@ -48,14 +47,13 @@ function generateMockAttendanceRecords(
 
 /**
  * Self-contained seeder for the today store.
- * Seeds current class, next class, and attendance summary if empty.
+ * Seeds current class and next class if empty.
  */
 async function ensureTodaySeeded(): Promise<void> {
   const currentClass = await getFromStore(STORES.today, 'currentClass')
   if (!currentClass) {
     await putToStore(STORES.today, { key: 'currentClass', value: getMockCurrentClass() })
     await putToStore(STORES.today, { key: 'nextClass', value: getMockNextClass() })
-    await putToStore(STORES.today, { key: 'attendanceSummary', value: getMockAttendanceSummary() })
   }
 }
 
