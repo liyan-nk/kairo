@@ -37,12 +37,13 @@ export function deriveTimetableViewModel(
   const dayStatus = getDayStatus(timetable, now)
   const isWeekend = dayStatus === 'weekend'
   const isBreak = dayStatus === 'short-break' || dayStatus === 'lunch-break' || dayStatus === 'free-period'
-  const currentSlot = getCurrentClassSlot(timetable, now)
+  const rawSlot = getCurrentClassSlot(timetable, now)
+  const remainingMinutes = rawSlot ? getRemainingTime(rawSlot, now) : 0
+  const currentSlot = rawSlot && remainingMinutes > 0 ? rawSlot : null
   const nextSlot = getNextClassSlot(timetable, now)
   const currentMin = getMinutesFromMidnight(now)
 
-  const remainingMinutes = getRemainingTime(currentSlot, now)
-  const progress = getCurrentProgress(currentSlot, now)
+  const progress = currentSlot ? getCurrentProgress(currentSlot, now) : 0
   const currentTimeLabel = formatMinutesTo12HourTime(currentMin)
 
   let currentClass: CurrentClass | null = null
