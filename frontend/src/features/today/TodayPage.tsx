@@ -140,7 +140,7 @@ export const TodayPage: React.FC = () => {
   return (
     <div className="space-y-6 select-none animate-in fade-in duration-200">
       {/* Dynamic Header */}
-      <GreetingHeader />
+      <GreetingHeader currentTimeLabel={currentTimeLabel} />
 
       {/* Offline Warning Banner */}
       {hasError && hasUsableData && (

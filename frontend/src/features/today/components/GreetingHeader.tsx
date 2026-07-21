@@ -1,7 +1,11 @@
 import React from 'react'
 import Typography from '../../../components/Typography'
 
-export const GreetingHeader: React.FC = () => {
+interface GreetingHeaderProps {
+  currentTimeLabel: string
+}
+
+export const GreetingHeader: React.FC<GreetingHeaderProps> = ({ currentTimeLabel }) => {
   const getGreeting = (): string => {
     const hour = new Date().getHours()
     if (hour < 12) return 'Good Morning'
@@ -19,9 +23,14 @@ export const GreetingHeader: React.FC = () => {
 
   return (
     <header className="space-y-1">
-      <Typography variant="h2" weight="bold">
-        {getGreeting()}
-      </Typography>
+      <div className="flex justify-between items-baseline">
+        <Typography variant="h2" weight="bold">
+          {getGreeting()}
+        </Typography>
+        <Typography variant="body" color="secondary" weight="semibold" className="font-mono text-[15px]">
+          {currentTimeLabel}
+        </Typography>
+      </div>
       <Typography variant="body" color="secondary">
         {getFormattedDate()}
       </Typography>
