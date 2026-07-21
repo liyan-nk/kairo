@@ -28,8 +28,8 @@ export function deriveProxyPlannerViewModel(subject: Subject): ProxyPlannerViewM
   const recoveryClasses = calculateRecoveryClasses(subject)
   const canLeaveNow = percentage >= 75 && remainingSafeLeaves > 0
 
-  let recommendationTitle = ''
-  let recommendationBody = ''
+  let recommendationTitle: string
+  let recommendationBody: string
 
   if (status === 'green') {
     if (remainingSafeLeaves > 0) {

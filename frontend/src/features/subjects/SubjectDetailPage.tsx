@@ -7,15 +7,18 @@ import IconButton from '../../components/IconButton'
 import { createSubjectRepository } from '../../lib/repositories'
 import type { Subject, AttendanceRecord } from '../../lib/models'
 import { deriveSubjectDetailViewModel } from './utils/subjectDetailViewModel'
+import { deriveProxyPlannerViewModel } from './utils/proxyPlannerViewModel'
+import type { SimulationResult } from './utils/attendanceForecast'
 import AttendanceRing from './components/AttendanceRing'
 import RiskIndicator from './components/RiskIndicator'
-import AttendanceForecastCard from './components/AttendanceForecastCard'
+import AttendanceRiskTimeline from './components/AttendanceRiskTimeline'
+import AttendanceSimulatorCard from './components/AttendanceSimulatorCard'
 import AttendanceHistoryList from './components/AttendanceHistoryList'
 
 /**
  * Subject Details Page.
- * Displays large progress ring, recommended action gap logs, forecast scenarios,
- * and chronological log lists.
+ * Displays progress ring, canonical Proxy Planner recommendation, semester risk timeline,
+ * interactive simulation tool, and chronological log list.
  */
 export const SubjectDetailPage: React.FC = () => {
   const { subjectId } = useParams<{ subjectId: string }>()
@@ -24,9 +27,9 @@ export const SubjectDetailPage: React.FC = () => {
 
   const [subject, setSubject] = useState<Subject | null>(null)
   const [history, setHistory] = useState<AttendanceRecord[]>([])
+  const [simulatedResult, setSimulatedResult] = useState<SimulationResult | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
-
   const [retryTrigger, setRetryTrigger] = useState(0)
 
   const handleRetry = () => {
@@ -74,6 +77,11 @@ export const SubjectDetailPage: React.FC = () => {
     return deriveSubjectDetailViewModel(subject, history)
   }, [subject, history])
 
+  const proxyPlanner = useMemo(() => {
+    if (!subject) return null
+    return deriveProxyPlannerViewModel(subject)
+  }, [subject])
+
   const handleBack = () => {
     navigate('/subjects')
   }
@@ -81,24 +89,22 @@ export const SubjectDetailPage: React.FC = () => {
   // Loader Skeletons
   if (isLoading) {
     return (
-      <div className="space-y-6 animate-in fade-in duration-200">
-        <header className="flex items-center gap-3">
-          <Skeleton variant="circular" width="40px" height="40px" />
+      <div className="space-y-6">
+        <header className="flex items-center gap-4">
+          <Skeleton variant="rectangular" width="40px" height="40px" className="rounded-medium" />
           <div className="space-y-2 flex-1">
-            <Skeleton variant="text" width="40%" height="24px" />
-            <Skeleton variant="text" width="60%" height="16px" />
+            <Skeleton variant="text" width="50%" height="24px" />
+            <Skeleton variant="text" width="30%" height="16px" />
           </div>
         </header>
-        <div className="flex justify-center py-6">
-          <Skeleton variant="circular" width="160px" height="160px" />
-        </div>
-        <Skeleton variant="rectangular" height="96px" className="rounded-large" />
-        <Skeleton variant="rectangular" height="144px" className="rounded-large" />
+        <Skeleton variant="rectangular" height="200px" className="rounded-large" />
+        <Skeleton variant="rectangular" height="80px" className="rounded-large" />
+        <Skeleton variant="rectangular" height="180px" className="rounded-large" />
       </div>
     )
   }
 
-  if (hasError || !viewModel) {
+  if (hasError || !viewModel || !proxyPlanner || !subject) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-4">
         <Typography variant="body" color="secondary" className="text-center">
@@ -148,18 +154,27 @@ export const SubjectDetailPage: React.FC = () => {
         />
       </section>
 
-      {/* Risk Assessment Indicator */}
+      {/* Canonical Proxy Planner Card (Real Database Reality) */}
       <RiskIndicator
-        status={viewModel.status}
-        statusLabel={viewModel.statusLabel}
-        gapText={viewModel.gapText}
-        recommendedAction={viewModel.recommendedAction}
+        status={proxyPlanner.status}
+        statusLabel={proxyPlanner.statusLabel}
+        gapText={proxyPlanner.recommendationTitle}
+        recommendedAction={proxyPlanner.recommendationBody}
       />
 
-      {/* Forecasting Grid */}
-      <AttendanceForecastCard scenarios={viewModel.forecastScenarios} />
+      {/* Semester Risk Timeline with Dual Position Markers */}
+      <AttendanceRiskTimeline
+        currentPercentage={viewModel.percentage}
+        simulatedPercentage={simulatedResult?.percentage ?? null}
+      />
 
-      {/* Attendance Log Chronological Log */}
+      {/* Interactive Attendance Simulator */}
+      <AttendanceSimulatorCard
+        subject={subject}
+        onSimulationChange={setSimulatedResult}
+      />
+
+      {/* Attendance Log Chronological History */}
       <section className="space-y-3">
         <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
           Attendance History
