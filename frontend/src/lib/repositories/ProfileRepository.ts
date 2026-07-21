@@ -1,8 +1,7 @@
-/**
- * TODO: Define operations for fetching student profile information, settings preferences, and authentication tokens.
- * This will be implemented in subsequent phases.
- */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+import type { UserProfile } from '../models'
+
 export interface ProfileRepository {
-  // TODO: Add operations for student profile configurations.
+  getProfile(): Promise<UserProfile | null>
+  updateProfile(profile: UserProfile): Promise<void>
+  syncOfficialBaseline(officialPercentage: number): Promise<void>
 }
