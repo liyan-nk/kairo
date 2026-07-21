@@ -481,6 +481,44 @@ Phase 8A introduces long-term attendance analytics, streaks, and semester health
 
 ---
 
+## ADR-017 — Non-Destructive Live Schedule Discrepancy Overlays
+
+Status:       Accepted
+Date:         2026-07-21
+
+### Decision
+Community discrepancy reports (Expected vs Actual Subject, Room, Faculty, Slot) shall be processed through the consensus engine, but they must never mutate the canonical timetable records stored in IndexedDB. Instead, the Live Schedule Resolver will dynamically overlay verified consensus reports on top of the canonical timetable items at render time.
+
+### Context
+Allowing user reports to overwrite the database introduces significant risk of schedule desynchronization or corrupted timetable recovery. If a consensus report is later rejected or expires, returning to the correct timetable requires complex backups or server queries.
+
+### Reasoning
+- **Data Integrity**: Preserving a single, unmutated canonical timetable makes schedule tracking fully non-destructive and robust.
+- **Fail-safe Recovery**: If reports expire or are flagged incorrect, KAIRO automatically falls back to the official timetable timeline.
+
+### Consequences
+- Timetable database records remain clean and unchanged.
+- The overlay logic runs computationally during render.
+
+---
+
+## ADR-018 — Minimal Institutional Synchronization Profile
+
+Status:       Accepted
+Date:         2026-07-21
+
+### Decision
+The Student Profile screen shall remain strictly minimal and focus purely on Student Identity (Name, Roll, Dept, Semester, Section), Official Baseline Sync (date and percentage inputs), and About details. All configurations like configurable target attendance thresholds (fixed at 75% across the entire application) and storage backup/reset clutter are excluded.
+
+### Context
+Exposing low-level database actions (export/import data) or shifting target attendance thresholds (e.g. 75%, 80%) into user settings exposes internal details and administrative rules that conflict with KAIRO's "One Glance" and "Less Is More" philosophy.
+
+### Reasoning
+- **Clutter Reduction**: Keeps the profile clean and focused purely on synchronization.
+- **Product Focus**: Ensures all computations follow consistent rules aligned with institutional policies.
+
+---
+
 ## Future ADRs
 
 Every major technical or product decision must be recorded here **before**
