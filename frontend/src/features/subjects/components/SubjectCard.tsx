@@ -42,8 +42,8 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({ subject }) => {
               ({subject.attendedClasses}/{subject.totalClasses} classes)
             </span>
           </div>
-          <span className="text-[12px] font-semibold text-text-secondary shrink-0">
-            {subject.missCountText}
+          <span className="text-[12px] font-bold text-text-primary bg-surface-secondary border border-border-card/80 px-2 py-0.5 rounded-small shrink-0">
+            {subject.proxyBadgeText}
           </span>
         </div>
         <AttendanceProgress percentage={subject.percentage} status={subject.status} />

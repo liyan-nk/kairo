@@ -70,12 +70,12 @@ export const SubjectsPage: React.FC = () => {
             Attendance Summary
           </Typography>
           {viewModel.belowThresholdCount > 0 ? (
-            <span className="px-2 py-0.5 rounded-pill bg-attendance-red/10 border border-attendance-red/20 text-attendance-red text-[11px] font-semibold uppercase tracking-wider">
+            <span className="px-2.5 py-1 rounded-pill bg-attendance-red/10 border border-attendance-red/20 text-attendance-red text-[11px] font-bold uppercase tracking-wider">
               {viewModel.belowThresholdCount} Below 75%
             </span>
           ) : (
-            <span className="px-2 py-0.5 rounded-pill bg-attendance-green/10 border border-attendance-green/20 text-attendance-green text-[11px] font-semibold uppercase tracking-wider">
-              All Safe
+            <span className="px-2.5 py-1 rounded-pill bg-attendance-green/10 border border-attendance-green/20 text-attendance-green text-[11px] font-bold uppercase tracking-wider">
+              All subjects healthy — Enjoy your proxies 🎉
             </span>
           )}
         </div>
