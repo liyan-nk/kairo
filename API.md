@@ -162,7 +162,7 @@ Lists all enrolled academic subjects for the student.
 
 ---
 
-#### `GET /api/v1/courses/{id}/history`
+#### `GET /api/v1/courses/{id}/attendance-logs`
 Fetches chronological attendance logs for a specific course.
 
 - **Response `200 OK`**:
@@ -378,7 +378,7 @@ The existing TypeScript repository interfaces adapt seamlessly to these clean RE
 | `AuthRepository` | `logout()` | `POST /api/v1/auth/logout` |
 | `TodayRepository` | `getCurrentClass()` / `getTimeline()` | `GET /api/v1/today` |
 | `SubjectRepository` | `getSubjects()` | `GET /api/v1/courses` |
-| `SubjectRepository` | `getAttendanceHistory()` | `GET /api/v1/courses/{id}/history` |
+| `SubjectRepository` | `getAttendanceHistory()` | `GET /api/v1/courses/{id}/attendance-logs` |
 | `CampusRepository` | `getProxyReports()` | `GET /api/v1/campus/proxy-reports` |
 | `CampusRepository` | `reportProxy()` | `POST /api/v1/campus/proxy-reports` |
 | `CampusRepository` | `getLostFoundItems()` | `GET /api/v1/campus/lost-found` |
