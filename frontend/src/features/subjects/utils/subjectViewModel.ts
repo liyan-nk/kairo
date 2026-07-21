@@ -23,6 +23,26 @@ export interface SubjectsViewModel {
   belowThresholdCount: number
 }
 
+export function getStatusForPercentage(percentage: number): 'green' | 'yellow' | 'orange' | 'red' {
+  if (percentage >= 80) return 'green'
+  if (percentage >= 75) return 'yellow'
+  if (percentage >= 70) return 'orange'
+  return 'red'
+}
+
+export function getStatusLabelForStatus(status: 'green' | 'yellow' | 'orange' | 'red'): string {
+  switch (status) {
+    case 'green':
+      return 'Safe'
+    case 'yellow':
+      return 'Watch'
+    case 'orange':
+      return 'Needs Attention'
+    case 'red':
+      return 'Critical'
+  }
+}
+
 /**
  * Pure function to derive all attendance health indicators, percentages,
  * warning labels, and aggregate stats from canonical subjects list.
@@ -33,28 +53,20 @@ export function deriveSubjectsViewModel(subjects: Subject[]): SubjectsViewModel 
     const { totalClasses, attendedClasses } = sub
     const percentage = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0
 
-    let status: 'green' | 'yellow' | 'orange' | 'red'
-    let statusLabel: string
+    const status = getStatusForPercentage(percentage)
+    const statusLabel = getStatusLabelForStatus(status)
     let missCountText: string
 
     if (percentage >= 80) {
-      status = 'green'
-      statusLabel = 'Safe'
       // Max additional misses allowed to stay >= 75%
       const maxMisses = Math.max(0, Math.floor(attendedClasses / 0.75 - totalClasses))
       missCountText = maxMisses > 0 ? `Can miss ${maxMisses} class${maxMisses > 1 ? 'es' : ''}` : 'Attend next class'
     } else if (percentage >= 75) {
-      status = 'yellow'
-      statusLabel = 'Watch'
       missCountText = 'Attend next class'
     } else if (percentage >= 70) {
-      status = 'orange'
-      statusLabel = 'Needs Attention'
       const reqAttends = Math.max(0, Math.ceil(3 * totalClasses - 4 * attendedClasses))
       missCountText = `Must attend ${reqAttends} class${reqAttends > 1 ? 'es' : ''}`
     } else {
-      status = 'red'
-      statusLabel = 'Critical'
       const reqAttends = Math.max(0, Math.ceil(3 * totalClasses - 4 * attendedClasses))
       missCountText = `Must attend ${reqAttends} class${reqAttends > 1 ? 'es' : ''}`
     }
