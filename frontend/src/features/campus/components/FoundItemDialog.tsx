@@ -16,6 +16,7 @@ interface FoundItemDialogProps {
     location: string
     date: string
     question: string
+    answer: string
     contactInfo: string
   }) => void
 }
@@ -35,6 +36,7 @@ export const FoundItemDialog: React.FC<FoundItemDialogProps> = ({
   const [category, setCategory] = useState('Personal Items')
   const [location, setLocation] = useState('')
   const [question, setQuestion] = useState('')
+  const [answerText, setAnswerText] = useState('')
   const [contactInfo, setContactInfo] = useState('')
 
   const handleClaimSubmit = (e: React.FormEvent) => {
@@ -47,7 +49,7 @@ export const FoundItemDialog: React.FC<FoundItemDialogProps> = ({
 
   const handleReportSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title.trim() || !location.trim() || !question.trim()) return
+    if (!title.trim() || !location.trim() || !question.trim() || !answerText.trim()) return
 
     onReportSubmit({
       title,
@@ -56,6 +58,7 @@ export const FoundItemDialog: React.FC<FoundItemDialogProps> = ({
       location,
       date: new Date().toISOString().split('T')[0],
       question,
+      answer: answerText,
       contactInfo,
     })
 
@@ -65,6 +68,7 @@ export const FoundItemDialog: React.FC<FoundItemDialogProps> = ({
     setCategory('Personal Items')
     setLocation('')
     setQuestion('')
+    setAnswerText('')
     setContactInfo('')
     onClose()
   }
@@ -192,6 +196,22 @@ export const FoundItemDialog: React.FC<FoundItemDialogProps> = ({
             placeholder="e.g. What sticker is pasted on the side?"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
+            className="w-full bg-surface-secondary border border-border-card rounded-medium px-3.5 py-2.5 text-[14px] outline-none text-text-primary focus:border-brand-info"
+          />
+        </div>
+
+        {/* Verification Answer */}
+        <div className="space-y-1.5">
+          <label htmlFor="itemAnswer" className="text-[13px] font-semibold text-text-secondary">
+            Verification Answer (Case-Insensitive)
+          </label>
+          <input
+            id="itemAnswer"
+            type="text"
+            required
+            placeholder="e.g. Snoopy"
+            value={answerText}
+            onChange={(e) => setAnswerText(e.target.value)}
             className="w-full bg-surface-secondary border border-border-card rounded-medium px-3.5 py-2.5 text-[14px] outline-none text-text-primary focus:border-brand-info"
           />
         </div>

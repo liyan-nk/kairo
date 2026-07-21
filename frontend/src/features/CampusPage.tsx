@@ -133,6 +133,7 @@ export const CampusPage: React.FC = () => {
     location: string
     date: string
     question: string
+    answer: string
     contactInfo: string
   }) => {
     try {
