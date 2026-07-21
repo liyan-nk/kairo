@@ -10,6 +10,9 @@ interface CurrentClassCardProps {
   room: string
   faculty: string
   minutesLeft: number
+  countdownText?: string
+  progress?: number
+  currentTimeLabel?: string
   attendanceState: AttendanceState
   recordedRecordId: string | null
   onMarkAttendance: (status: 'Present' | 'Absent') => void
@@ -23,6 +26,9 @@ export const CurrentClassCard: React.FC<CurrentClassCardProps> = ({
   room,
   faculty,
   minutesLeft,
+  countdownText,
+  progress,
+  currentTimeLabel,
   attendanceState,
   recordedRecordId,
   onMarkAttendance,
@@ -33,8 +39,8 @@ export const CurrentClassCard: React.FC<CurrentClassCardProps> = ({
   return (
     <Card variant="default" padding="lg" className="space-y-4">
       <div className="flex justify-between items-start">
-        <div className="space-y-1 pr-4">
-          <Typography variant="title" weight="bold" className="leading-tight">
+        <div className="space-y-1 pr-4 min-w-0">
+          <Typography variant="title" weight="bold" className="leading-tight truncate">
             {subject}
           </Typography>
           <Typography variant="caption" color="secondary">
@@ -42,14 +48,26 @@ export const CurrentClassCard: React.FC<CurrentClassCardProps> = ({
           </Typography>
         </div>
         <div className="text-right shrink-0">
-          <Typography variant="h3" weight="bold" className="text-brand-info leading-none">
-            {minutesLeft}m
+          <Typography variant="body" weight="bold" className="text-brand-info leading-none">
+            {countdownText || `Ends in ${minutesLeft} min`}
           </Typography>
-          <Typography variant="micro" color="secondary" className="block mt-1">
-            remaining
-          </Typography>
+          {currentTimeLabel && (
+            <Typography variant="micro" color="secondary" className="block mt-1 font-medium">
+              {currentTimeLabel}
+            </Typography>
+          )}
         </div>
       </div>
+
+      {/* Live Progress Bar */}
+      {typeof progress === 'number' && (
+        <div className="w-full h-2 bg-surface-secondary border border-border-card/40 rounded-pill overflow-hidden">
+          <div
+            className="h-full bg-brand-info transition-all duration-500 ease-out"
+            style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+          />
+        </div>
+      )}
 
       {/* Action / Feedback Section */}
       {attendanceState === 'notMarked' ? (

@@ -7,6 +7,7 @@ interface NextClassCardProps {
   room: string
   faculty: string
   startTime: string
+  nextCountdownText?: string
 }
 
 export const NextClassCard: React.FC<NextClassCardProps> = ({
@@ -14,12 +15,13 @@ export const NextClassCard: React.FC<NextClassCardProps> = ({
   room,
   faculty,
   startTime,
+  nextCountdownText,
 }) => {
   return (
     <Card variant="outline" padding="md">
       <div className="flex justify-between items-start">
-        <div className="space-y-1">
-          <Typography variant="title" weight="semibold">
+        <div className="space-y-1 pr-3 min-w-0">
+          <Typography variant="title" weight="semibold" className="truncate">
             {subject}
           </Typography>
           <Typography variant="caption" color="secondary">
@@ -28,10 +30,10 @@ export const NextClassCard: React.FC<NextClassCardProps> = ({
         </div>
         <div className="text-right shrink-0">
           <Typography variant="body" weight="semibold" className="text-text-primary">
-            {startTime}
+            {nextCountdownText || startTime}
           </Typography>
-          <Typography variant="micro" color="secondary" className="block mt-0.5">
-            starts
+          <Typography variant="micro" color="secondary" className="block mt-0.5 font-medium">
+            {nextCountdownText ? startTime : 'starts'}
           </Typography>
         </div>
       </div>

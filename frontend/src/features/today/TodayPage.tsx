@@ -3,10 +3,10 @@ import { AlertCircle } from 'lucide-react'
 import Typography from '../../components/Typography'
 import Skeleton from '../../components/Skeleton'
 import useToast from '../../hooks/useToast'
+import useCurrentTime from '../../hooks/useCurrentTime'
 import { createSubjectRepository } from '../../lib/repositories'
 import type { Subject } from '../../lib/models'
 import type { ViewState } from './types'
-import useTodayClock from './hooks/useTodayClock'
 import useToday from './hooks/useToday'
 import GreetingHeader from './components/GreetingHeader'
 import TodayEmptyState from './components/TodayEmptyState'
@@ -15,10 +15,11 @@ import NextClassCard from './components/NextClassCard'
 import Timeline from './components/Timeline'
 import AttendanceSummaryCard from './components/AttendanceSummaryCard'
 import { deriveTodayViewModel } from './utils/todayViewModel'
+import { deriveTimetableViewModel } from '../timetable/utils/timetableViewModel'
 
 export const TodayPage: React.FC = () => {
   const { showToast } = useToast()
-  const { simulatedMinutesLeft } = useTodayClock()
+  const { now, currentTimeLabel } = useCurrentTime()
   const subjectRepository = useMemo(() => createSubjectRepository(), [])
   const {
     currentClass: realCurrentClass,
@@ -35,14 +36,20 @@ export const TodayPage: React.FC = () => {
   const [viewState, setViewState] = useState<ViewState>('active')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Pure live schedule engine model derived from system clock and timetable data
+  const liveTimetableVm = useMemo(() => {
+    return deriveTimetableViewModel(realTimeline, now)
+  }, [realTimeline, now])
+
   const handleMarkAttendance = async (status: 'Present' | 'Absent') => {
-    if (!viewModel.currentClass || isSubmitting) return
+    const activeSubjectName = liveTimetableVm.currentClass?.subject || viewModel.currentClass?.subject
+    if (!activeSubjectName || isSubmitting) return
     setIsSubmitting(true)
     try {
       const subjects = await subjectRepository.getSubjects()
-      const subjectObj = subjects.find((s: Subject) => s.name === viewModel.currentClass?.subject)
+      const subjectObj = subjects.find((s: Subject) => s.name === activeSubjectName)
       if (subjectObj) {
-        const slotId = 'slot_current'
+        const slotId = liveTimetableVm.currentClassSlotId || 'slot_current'
         await subjectRepository.markAttendance(subjectObj.id, slotId, status)
         await reload()
         showToast(`Attendance Recorded (${status}) ✓`)
@@ -86,9 +93,12 @@ export const TodayPage: React.FC = () => {
     realCurrentClass,
     realNextClass,
     realTimeline,
-    realMinutesLeft: simulatedMinutesLeft,
+    realMinutesLeft: liveTimetableVm.remainingMinutes,
     attendanceRecord,
   })
+
+  const activeCurrentClass = liveTimetableVm.currentClass || viewModel.currentClass
+  const activeNextClass = liveTimetableVm.nextClass || viewModel.nextClass
 
   // Render Skeletons for Loading State
   if (viewModel.computedState === 'loading') {
@@ -155,12 +165,15 @@ export const TodayPage: React.FC = () => {
           {['holiday', 'dayEnded', 'beforeFirst', 'freePeriod'].includes(viewModel.computedState) ? (
             <TodayEmptyState viewState={viewModel.computedState} className="my-0 max-w-none w-full" />
           ) : (
-            viewModel.currentClass && (
+            activeCurrentClass && (
               <CurrentClassCard
-                subject={viewModel.currentClass.subject}
-                room={viewModel.currentClass.room}
-                faculty={viewModel.currentClass.faculty}
-                minutesLeft={viewModel.minutesLeft ?? simulatedMinutesLeft}
+                subject={activeCurrentClass.subject}
+                room={activeCurrentClass.room}
+                faculty={activeCurrentClass.faculty}
+                minutesLeft={liveTimetableVm.remainingMinutes}
+                countdownText={liveTimetableVm.countdownText}
+                progress={liveTimetableVm.progress}
+                currentTimeLabel={currentTimeLabel}
                 attendanceState={viewModel.attendanceState}
                 recordedRecordId={viewModel.recordedRecordId}
                 onMarkAttendance={handleMarkAttendance}
@@ -173,16 +186,17 @@ export const TodayPage: React.FC = () => {
         </section>
 
         {/* Next Class Section */}
-        {viewModel.nextClass && (
+        {activeNextClass && (
           <section className="space-y-2">
             <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
               Next Class
             </Typography>
             <NextClassCard
-              subject={viewModel.nextClass.subject}
-              room={viewModel.nextClass.room}
-              faculty={viewModel.nextClass.faculty}
-              startTime={viewModel.nextClass.startTime}
+              subject={activeNextClass.subject}
+              room={activeNextClass.room}
+              faculty={activeNextClass.faculty}
+              startTime={activeNextClass.startTime}
+              nextCountdownText={liveTimetableVm.nextCountdownText}
             />
           </section>
         )}
