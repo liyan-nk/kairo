@@ -438,6 +438,28 @@ KAIRO's offline-first strategy requires students to view timetables, view attend
 
 ---
 
+## ADR-015 — Single Source of Truth Live Schedule Engine
+
+Status:       Accepted
+Date:         2026-07-21
+
+### Decision
+`liveSchedule.ts` shall serve as the single source of truth for all time-based schedule intelligence (current class, next class, countdowns, progress, break detection, day status). All presentation logic receives derived view models from `timetableViewModel.ts` and performs zero independent time calculations in UI component layers. Timer state synchronizes to minute boundaries (`:00` seconds) and automatically pauses during tab hidden states.
+
+### Context
+KAIRO requires real-time schedule awareness, automatic class progression, countdowns, and timeline state rendering on the Today screen. Performing ad-hoc time calculations inside React components leads to inconsistent time displays, contradictory states, and timer drift during long-running sessions.
+
+### Reasoning
+- **Pure Time-Based Computation**: Computing current/next class and progress percentages at render time from canonical timetable data ensures zero persistent state corruption in IndexedDB.
+- **Minute-Boundary Synchronization**: Synchronizing timer ticks to the exact `:00` second boundary of each minute ensures clock alignment and eliminates countdown drift.
+- **Separation of Concerns**: Keeping all schedule math inside `liveSchedule.ts` and `timetableViewModel.ts` preserves the core architecture principles (`AGENTS.md` §4).
+
+### Consequences
+- UI components remain pure presenters.
+- Time-based state is non-persisted and automatically recalculates on system time changes or tab visibility changes.
+
+---
+
 ## Future ADRs
 
 Every major technical or product decision must be recorded here **before**
