@@ -7,12 +7,16 @@ interface TodayEmptyStateProps {
   viewState: ViewState
   onRetry?: () => void
   className?: string
+  customTitle?: string
+  customDescription?: string
 }
 
 export const TodayEmptyState: React.FC<TodayEmptyStateProps> = ({
   viewState,
   onRetry,
   className = '',
+  customTitle,
+  customDescription,
 }) => {
   switch (viewState) {
     case 'error':
@@ -30,8 +34,8 @@ export const TodayEmptyState: React.FC<TodayEmptyStateProps> = ({
       return (
         <EmptyState
           icon={<Calendar className="text-brand-info" />}
-          title="No Classes Scheduled"
-          description="Enjoy your day off!"
+          title={customTitle || "No classes today."}
+          description={customDescription || "Enjoy your weekend."}
           className={className}
         />
       )
@@ -39,8 +43,8 @@ export const TodayEmptyState: React.FC<TodayEmptyStateProps> = ({
       return (
         <EmptyState
           icon={<Sunset className="text-brand-info" />}
-          title="Classes Ended"
-          description="Classes ended for today — have a great evening!"
+          title={customTitle || "You're done for today."}
+          description={customDescription || "Classes ended for today — have a great evening!"}
           className={className}
         />
       )
@@ -48,8 +52,8 @@ export const TodayEmptyState: React.FC<TodayEmptyStateProps> = ({
       return (
         <EmptyState
           icon={<Clock className="text-brand-info" />}
-          title="Morning Schedule"
-          description="Your first class starts at 9:00 AM."
+          title={customTitle || "Morning Schedule"}
+          description={customDescription || "Your first class starts soon."}
           className={className}
         />
       )
@@ -57,8 +61,8 @@ export const TodayEmptyState: React.FC<TodayEmptyStateProps> = ({
       return (
         <EmptyState
           icon={<Coffee className="text-brand-info" />}
-          title="No Class Right Now"
-          description="Your next class starts at 11:15 AM."
+          title={customTitle || "Break / Free Period"}
+          description={customDescription || "No class scheduled right now."}
           className={className}
         />
       )

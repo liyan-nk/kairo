@@ -162,8 +162,13 @@ export const TodayPage: React.FC = () => {
             Current Class
           </Typography>
           
-          {['holiday', 'dayEnded', 'beforeFirst', 'freePeriod'].includes(viewModel.computedState) ? (
-            <TodayEmptyState viewState={viewModel.computedState} className="my-0 max-w-none w-full" />
+          {['holiday', 'dayEnded', 'beforeFirst', 'freePeriod'].includes(viewModel.computedState) || !activeCurrentClass ? (
+            <TodayEmptyState
+              viewState={liveTimetableVm.dayStatus === 'weekend' ? 'holiday' : (liveTimetableVm.dayStatus === 'finished' ? 'dayEnded' : viewModel.computedState)}
+              customTitle={liveTimetableVm.dayStatus === 'finished' ? "You're done for today." : (liveTimetableVm.dayStatus === 'weekend' ? "No classes today." : undefined)}
+              customDescription={liveTimetableVm.dayStatusLabel}
+              className="my-0 max-w-none w-full"
+            />
           ) : (
             activeCurrentClass && (
               <CurrentClassCard
