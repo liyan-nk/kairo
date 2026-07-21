@@ -52,19 +52,26 @@ export function deriveSubjectDetailViewModel(
   let gapText: string
   let recommendedAction: string
 
-  if (percentage >= 75) {
+  if (status === 'green') {
     const maxMisses = Math.max(0, Math.floor(subject.attendedClasses / 0.75 - subject.totalClasses))
     gapText = maxMisses > 0
       ? `Can miss ${maxMisses} class${maxMisses > 1 ? 'es' : ''}`
       : 'Attend next class'
 
     recommendedAction = maxMisses > 0
-      ? `You can safely miss the next ${maxMisses} class${maxMisses > 1 ? 'es' : ''}.`
-      : 'Attendance is healthy.'
-  } else {
-    const reqAttends = Math.max(0, Math.ceil(3 * subject.totalClasses - 4 * subject.attendedClasses))
+      ? `You may safely miss ${maxMisses} class${maxMisses > 1 ? 'es' : ''}.`
+      : 'Stay consistent. Missing another class removes your safety buffer.'
+  } else if (status === 'yellow') {
+    gapText = 'Attend next class'
+    recommendedAction = 'Stay consistent. Missing another class removes your safety buffer.'
+  } else if (status === 'orange') {
+    const reqAttends = Math.max(1, Math.ceil(3 * subject.totalClasses - 4 * subject.attendedClasses))
     gapText = `Must attend ${reqAttends} class${reqAttends > 1 ? 'es' : ''}`
-    recommendedAction = 'Attend the next class to return above 75%.'
+    recommendedAction = 'Attend the next class to return above the requirement.'
+  } else {
+    const reqAttends = Math.max(1, Math.ceil(3 * subject.totalClasses - 4 * subject.attendedClasses))
+    gapText = `Must attend ${reqAttends} class${reqAttends > 1 ? 'es' : ''}`
+    recommendedAction = `Attend the next ${reqAttends} consecutive class${reqAttends > 1 ? 'es' : ''} to return above 75%.`
   }
 
   // 2. Generate forecast scenarios
