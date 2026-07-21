@@ -1,4 +1,4 @@
-import { IndexedDbTodayRepository } from '../providers/IndexedDbTodayRepository'
+import { HttpTodayRepository } from '../providers/HttpTodayRepository'
 import { HttpSubjectRepository } from '../providers/HttpSubjectRepository'
 import { IndexedDbCampusRepository } from '../providers/IndexedDbCampusRepository'
 import { HttpProfileRepository } from '../providers/HttpProfileRepository'
@@ -21,7 +21,7 @@ export * from './SessionPersistence'
  * Prepares TodayPage dependency injection.
  */
 export const createTodayRepository = (): TodayRepository => {
-  return new IndexedDbTodayRepository()
+  return new HttpTodayRepository()
 }
 
 /**
