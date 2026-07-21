@@ -23,7 +23,7 @@ export const SubjectsPage: React.FC = () => {
           <Skeleton variant="text" width="40%" height="28px" />
           <Skeleton variant="text" width="60%" height="16px" />
         </header>
-        <Skeleton variant="rectangular" height="96px" className="rounded-large" />
+        <Skeleton variant="rectangular" height="112px" className="rounded-large" />
         <div className="space-y-4">
           <Skeleton variant="rectangular" height="144px" className="rounded-large" />
           <Skeleton variant="rectangular" height="144px" className="rounded-large" />
