@@ -537,21 +537,35 @@ Allowing duplicate timetable arrays or exposing manual sync controls created UX 
 
 ---
 
+## ADR-020 — Stateless Spring Boot 3.x & PostgreSQL Domain-Driven Architecture
+
+Status:       Accepted
+Date:         2026-07-21
+
+### Decision
+1. **Domain-Driven REST API**: The backend architecture shall be designed around clean domain models and RESTful resources (`/api/v1/auth`, `/api/v1/users`, `/api/v1/courses`, `/api/v1/timetable-slots`, `/api/v1/attendance-logs`, `/api/v1/campus/proxy-reports`, `/api/v1/campus/lost-found`). Frontend TypeScript repositories will adapt to this domain API via HTTP provider implementations without altering backend API conventions.
+2. **Normalized PostgreSQL Database Schema**: The database schema will be strictly normalized in 3NF, separating global definitions (`courses`, `academic_terms`) from student-specific instances (`enrollments`, `official_attendance_baselines`, `attendance_logs`) and system entities (`refresh_tokens`, audit fields, soft deletion columns).
+3. **Stateless JWT Security**: Authentication will use stateless Short-Lived JWT Access Tokens (15 min expiry) + DB-stored Refresh Tokens (7-day expiry) hashed with BCrypt. Role-based access controls will default to `ROLE_STUDENT` with full extensibility for `ROLE_ADMIN`.
+
+### Context
+Transitioning KAIRO from a mock/IndexedDB local app to a full-stack client-server platform requires a secure, robust, and scalable backend architecture without coupling server-side database design to ephemeral frontend UI layout structures.
+
+### Reasoning
+- **Maintainability & Scalability**: Domain-driven REST resources isolate core business logic (attendance calculation, consensus rules) strictly within the Spring Boot service layer (`AGENTS.md` §4.1).
+- **Security**: Stateless JWT access tokens keep API calls fast and scalable while persistent hashed refresh tokens allow secure session revocation.
+- **Normalization**: 3NF database schema prevents data duplication, supports historical tracking (official baselines vs log entries), and enforces referential integrity.
+
+---
+
 ## Future ADRs
 
 Every major technical or product decision must be recorded here **before**
 implementation, not after. Anticipated topics:
 
-- Authentication strategy
-- Database design
-- Offline support
 - Synchronization strategy
-- Notification strategy
-- API architecture
-- Deployment
-- Security
-- Data privacy
-- Attendance algorithms (the actual estimation formula, once designed)
+- Push notification engine
+- Production deployment & CI/CD pipeline
+- Advanced consensus verification thresholds
 
 Do not rely on memory. Record decisions as they happen, using the
 template in §0.
