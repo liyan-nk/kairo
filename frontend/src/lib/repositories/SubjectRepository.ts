@@ -8,4 +8,13 @@ export interface SubjectRepository {
   getAttendanceHistory(subjectId: string): Promise<AttendanceRecord[]>
   addAttendanceRecord(record: AttendanceRecord): Promise<void>
   updateAttendanceRecord(record: AttendanceRecord): Promise<void>
+  markAttendance(
+    subjectId: string,
+    timetableSlotId: string,
+    status: 'Present' | 'Absent',
+    date?: string
+  ): Promise<void>
+  undoAttendance(
+    attendanceRecordId: string
+  ): Promise<void>
 }

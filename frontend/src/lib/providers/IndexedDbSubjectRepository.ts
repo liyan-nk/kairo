@@ -1,6 +1,6 @@
 import type { SubjectRepository } from '../repositories/SubjectRepository'
 import type { Subject, AttendanceRecord } from '../models'
-import { getFromStore, getAllFromStore, putToStore } from '../storage/stores'
+import { getFromStore, getAllFromStore, putToStore, deleteFromStore } from '../storage/stores'
 import { STORES } from '../storage/schema'
 import { bootstrapDatabase } from '../storage/bootstrap'
 
@@ -128,6 +128,85 @@ export class IndexedDbSubjectRepository implements SubjectRepository {
       }
     } catch (err) {
       throw new Error('UPDATE_HISTORY_RECORD_FAILED', { cause: err })
+    }
+  }
+
+  async markAttendance(
+    subjectId: string,
+    timetableSlotId: string,
+    status: 'Present' | 'Absent',
+    dateStr?: string
+  ): Promise<void> {
+    await this.ensureInitialized()
+    const targetDate = dateStr || new Date().toISOString().split('T')[0]
+    try {
+      // 1. Duplicate protection check
+      const history = await getAllFromStore<AttendanceRecord>(STORES.attendanceHistory)
+      const duplicate = history.find(
+        (r) => r.subjectId === subjectId && r.timetableSlot === timetableSlotId && r.date === targetDate
+      )
+      if (duplicate) {
+        // Record already exists for this subject, slot, and date. Reject duplicate write.
+        return
+      }
+
+      // 2. Fetch canonical Subject
+      const subject = await getFromStore<Subject>(STORES.subjects, subjectId)
+      if (!subject) {
+        throw new Error('SUBJECT_NOT_FOUND')
+      }
+
+      // 3. Create AttendanceHistory record
+      const recordId = `${subjectId}_${timetableSlotId}_${targetDate}`
+      const newRecord: AttendanceRecord = {
+        id: recordId,
+        subjectId,
+        date: targetDate,
+        status,
+        timetableSlot: timetableSlotId,
+      }
+
+      // 4. Calculate updated Subject aggregate counters
+      const isPresent = status === 'Present'
+      const updatedSubject: Subject = {
+        ...subject,
+        totalClasses: subject.totalClasses + 1,
+        attendedClasses: subject.attendedClasses + (isPresent ? 1 : 0),
+      }
+
+      // 5. Persist both atomically
+      await putToStore(STORES.attendanceHistory, newRecord)
+      await putToStore(STORES.subjects, updatedSubject)
+    } catch (err) {
+      throw new Error('MARK_ATTENDANCE_FAILED', { cause: err })
+    }
+  }
+
+  async undoAttendance(attendanceRecordId: string): Promise<void> {
+    await this.ensureInitialized()
+    try {
+      // 1. Fetch record from attendanceHistory
+      const record = await getFromStore<AttendanceRecord>(STORES.attendanceHistory, attendanceRecordId)
+      if (!record) {
+        return
+      }
+
+      // 2. Fetch canonical Subject
+      const subject = await getFromStore<Subject>(STORES.subjects, record.subjectId)
+      if (subject) {
+        const isPresent = record.status === 'Present'
+        const updatedSubject: Subject = {
+          ...subject,
+          totalClasses: Math.max(0, subject.totalClasses - 1),
+          attendedClasses: Math.max(0, subject.attendedClasses - (isPresent ? 1 : 0)),
+        }
+        await putToStore(STORES.subjects, updatedSubject)
+      }
+
+      // 3. Delete AttendanceHistory record
+      await deleteFromStore(STORES.attendanceHistory, attendanceRecordId)
+    } catch (err) {
+      throw new Error('UNDO_ATTENDANCE_FAILED', { cause: err })
     }
   }
 }
