@@ -328,6 +328,18 @@ Submits a schedule discrepancy report.
 }
 ```
 
+#### `POST /api/v1/campus/proxy-reports/{id}/confirm`
+Upvotes/confirms an existing schedule discrepancy report.
+
+- **Response `200 OK`**:
+```json
+{
+  "id": "proxy-1-uuid",
+  "reportCount": 2,
+  "status": "Pending"
+}
+```
+
 #### `GET /api/v1/campus/lost-found`
 Lists lost & found items.
 
@@ -346,6 +358,36 @@ Lists lost & found items.
     "contactInfo": "Prof. Alok Verma"
   }
 ]
+```
+
+#### `POST /api/v1/campus/lost-found`
+Creates a new lost & found item.
+
+- **Request Body**:
+```json
+{
+  "title": "Scientific Calculator",
+  "description": "Found in Lab 2. FX-991EX model.",
+  "category": "Electronics",
+  "location": "Lab 2",
+  "date": "2026-07-21",
+  "question": "What name is written on the back cover?",
+  "contactInfo": "Prof. Alok Verma"
+}
+```
+- **Response `201 Created`**:
+```json
+{
+  "id": "lf-1-uuid",
+  "title": "Scientific Calculator",
+  "description": "Found in Lab 2. FX-991EX model.",
+  "category": "Electronics",
+  "location": "Lab 2",
+  "date": "2026-07-21",
+  "status": "Lost",
+  "question": "What name is written on the back cover?",
+  "contactInfo": "Prof. Alok Verma"
+}
 ```
 
 #### `PATCH /api/v1/campus/lost-found/{id}/claim`
