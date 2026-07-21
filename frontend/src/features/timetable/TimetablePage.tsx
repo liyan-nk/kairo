@@ -8,15 +8,15 @@ import { createTodayRepository } from '../../lib/repositories'
 import type { ClassItem } from '../../lib/models'
 import { Calendar, User, MapPin } from 'lucide-react'
 
+// Weekdays Mon-Fri
+const DAYS: ('Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri')[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
+
 export const TimetablePage: React.FC = () => {
   const todayRepo = useMemo(() => createTodayRepository(), [])
 
   const [timeline, setTimeline] = useState<ClassItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
-
-  // Weekdays Mon-Fri
-  const days: ('Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri')[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
 
   // Dynamically resolve default selected tab index and tomorrow/next week indicators
   const { initialTabIdx, indicator } = useMemo(() => {
@@ -25,7 +25,7 @@ export const TimetablePage: React.FC = () => {
     const currentMin = now.getHours() * 60 + now.getMinutes()
     const lastSlotEndMinutes = 795 // 01:15 PM in minutes
 
-    let tabIdx = 0
+    let tabIdx: number
     let ind = ''
 
     if (todayIdx >= 1 && todayIdx <= 5) {
@@ -38,7 +38,7 @@ export const TimetablePage: React.FC = () => {
         } else {
           // Mon-Thu ended -> show tomorrow
           tabIdx = todayIdx // selects next weekday
-          ind = `Tomorrow (${days[tabIdx]})`
+          ind = `Tomorrow (${DAYS[tabIdx]})`
         }
       } else {
         // Not ended -> show today
@@ -90,7 +90,7 @@ export const TimetablePage: React.FC = () => {
     }
   }, [todayRepo])
 
-  const selectedDay = days[activeTab]
+  const selectedDay = DAYS[activeTab]
 
   // Filter slots for selected day
   const filteredSlots = useMemo(() => {
