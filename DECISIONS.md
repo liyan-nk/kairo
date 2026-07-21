@@ -460,6 +460,27 @@ KAIRO requires real-time schedule awareness, automatic class progression, countd
 
 ---
 
+## ADR-016 — Pure Attendance Analytics & Presentation View Models
+
+Status:       Accepted
+Date:         2026-07-21
+
+### Decision
+All attendance trends, streaks, risk scores, and semester health metrics shall be derived as a pure calculation layer from canonical `Subject` and `AttendanceHistory` data at render time. Presentation view models (`SemesterInsightsViewModel`, `SubjectInsightsViewModel`) expose sanitized presentation-ready summaries (`SubjectInsightSummary`) rather than leaking domain entities into UI components. No analytical metrics or trend calculations shall be persisted to IndexedDB.
+
+### Context
+Phase 8A introduces long-term attendance analytics, streaks, and semester health indicators. Persisting derived analytics or leaking full domain entities into presentation components risks data duplication, cache invalidation drift, and tight coupling between database entities and UI components.
+
+### Reasoning
+- **Data Integrity**: Computing trends and streaks dynamically on read ensures analytics always reflect the true underlying attendance history.
+- **Layer Separation**: Exposing presentation summaries (`SubjectInsightSummary`) keeps the domain model isolated from presentation requirements (`AGENTS.md` §4).
+
+### Consequences
+- Analytics calculations remain computational and lightweight at render time.
+- Database schema remains clean and unburdened by derived analytics stores.
+
+---
+
 ## Future ADRs
 
 Every major technical or product decision must be recorded here **before**
