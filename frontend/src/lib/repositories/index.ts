@@ -2,7 +2,7 @@ import { IndexedDbTodayRepository } from '../providers/IndexedDbTodayRepository'
 import { IndexedDbSubjectRepository } from '../providers/IndexedDbSubjectRepository'
 import { IndexedDbCampusRepository } from '../providers/IndexedDbCampusRepository'
 import { IndexedDbProfileRepository } from '../providers/IndexedDbProfileRepository'
-import { MockAuthRepository } from '../providers/MockAuthRepository'
+import { HttpAuthRepository } from '../providers/HttpAuthRepository'
 import type { TodayRepository } from './TodayRepository'
 import type { SubjectRepository } from './SubjectRepository'
 import type { CampusRepository } from './CampusRepository'
@@ -53,5 +53,5 @@ export const createProfileRepository = (): ProfileRepository => {
  * Prepares AuthContext dependency injection.
  */
 export const createAuthRepository = (): AuthRepository => {
-  return new MockAuthRepository()
+  return new HttpAuthRepository()
 }

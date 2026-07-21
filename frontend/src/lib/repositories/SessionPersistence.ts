@@ -5,6 +5,7 @@ export interface UserSession {
     name: string
   }
   token: string
+  refreshToken?: string
 }
 
 export interface SessionPersistence {
