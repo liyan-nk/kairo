@@ -1,6 +1,5 @@
 import React from 'react'
 import Typography from '../../../components/Typography'
-import Badge from '../../../components/Badge'
 
 interface TimelineItemProps {
   subject: string
@@ -29,19 +28,19 @@ export const TimelineItem: React.FC<TimelineItemProps> = ({
       </div>
       <div>
         {status === 'completed' && (
-          <Badge variant="filled" color="secondary">
-            Completed
-          </Badge>
+          <span className="px-2.5 py-1 text-[11px] font-bold rounded-pill bg-attendance-green/10 border border-attendance-green/20 text-attendance-green flex items-center gap-1 uppercase tracking-wider">
+            ✓ Completed
+          </span>
         )}
         {status === 'current' && (
-          <Badge variant="filled" color="primary">
-            Current
-          </Badge>
+          <span className="px-2.5 py-1 text-[11px] font-bold rounded-pill bg-brand-info/15 border border-brand-info/30 text-brand-info flex items-center gap-1.5 uppercase tracking-wider animate-pulse">
+            ● Live
+          </span>
         )}
         {status === 'upcoming' && (
-          <Badge variant="outlined" color="secondary">
-            Upcoming
-          </Badge>
+          <span className="px-2.5 py-1 text-[11px] font-bold rounded-pill bg-surface-secondary border border-border-card text-text-secondary flex items-center gap-1 uppercase tracking-wider">
+            ○ Upcoming
+          </span>
         )}
       </div>
     </div>

@@ -202,12 +202,12 @@ export const TodayPage: React.FC = () => {
         )}
 
         {/* Today's Timeline Section */}
-        {viewModel.timeline.length > 0 && (
+        {(liveTimetableVm.timelineItems.length > 0 || viewModel.timeline.length > 0) && (
           <section className="space-y-3">
             <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
               Today's Timeline
             </Typography>
-            <Timeline items={viewModel.timeline} />
+            <Timeline items={liveTimetableVm.timelineItems.length > 0 ? liveTimetableVm.timelineItems : viewModel.timeline} />
           </section>
         )}
 
