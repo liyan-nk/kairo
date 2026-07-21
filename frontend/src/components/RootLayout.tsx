@@ -25,7 +25,7 @@ export const RootLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-bg text-text-primary flex flex-col relative pb-[64px] max-w-[480px] mx-auto border-x border-border-card">
+    <div className="min-h-screen bg-bg text-text-primary flex flex-col relative pb-[calc(64px+env(safe-area-inset-bottom,0px))] max-w-[480px] mx-auto border-x border-border-card">
       {/* Reusable scrollable page viewport area */}
       <main className="flex-1 w-full px-4 py-6 overflow-y-auto overflow-x-hidden">
         <Outlet />

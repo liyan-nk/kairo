@@ -63,8 +63,34 @@ export const CampusPage: React.FC = () => {
   }, [campusRepo, subjectRepo, todayRepo])
 
   useEffect(() => {
-    loadData()
-  }, [loadData])
+    let active = true
+    const fetchData = async () => {
+      try {
+        const [reportsData, itemsData, subjectsData, timelineData] = await Promise.all([
+          campusRepo.getProxyReports(),
+          campusRepo.getLostAndFoundItems(),
+          subjectRepo.getSubjects(),
+          todayRepo.getTimeline(),
+        ])
+        if (active) {
+          setReports(reportsData.sort((a, b) => b.createdAt.localeCompare(a.createdAt)))
+          setItems(itemsData.sort((a, b) => b.createdAt.localeCompare(a.createdAt)))
+          setSubjects(subjectsData)
+          setTimeline(timelineData)
+          setIsLoading(false)
+        }
+      } catch {
+        if (active) {
+          setHasError(true)
+          setIsLoading(false)
+        }
+      }
+    }
+    fetchData()
+    return () => {
+      active = false
+    }
+  }, [campusRepo, subjectRepo, todayRepo])
 
   // Handle schedule discrepancy submit
   const handleProxySubmit = async (form: {

@@ -37,8 +37,30 @@ export const ProfilePage: React.FC = () => {
   }, [profileRepo])
 
   useEffect(() => {
-    loadData()
-  }, [loadData])
+    let active = true
+    const fetchData = async () => {
+      try {
+        const data = await profileRepo.getProfile()
+        if (active) {
+          if (data) {
+            setProfile(data)
+          } else {
+            setHasError(true)
+          }
+          setIsLoading(false)
+        }
+      } catch {
+        if (active) {
+          setHasError(true)
+          setIsLoading(false)
+        }
+      }
+    }
+    fetchData()
+    return () => {
+      active = false
+    }
+  }, [profileRepo])
 
   const handleSyncSubmit = async (percentage: number) => {
     try {
