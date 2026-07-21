@@ -13,8 +13,10 @@ import TodayEmptyState from './components/TodayEmptyState'
 import CurrentClassCard from './components/CurrentClassCard'
 import NextClassCard from './components/NextClassCard'
 import Timeline from './components/Timeline'
+import AttendanceDialog from './components/AttendanceDialog'
 import { deriveTodayViewModel } from './utils/todayViewModel'
 import { deriveTimetableViewModel } from '../timetable/utils/timetableViewModel'
+import type { ClassItem } from '../../lib/models'
 
 export const TodayPage: React.FC = () => {
   const { showToast } = useToast()
@@ -34,6 +36,7 @@ export const TodayPage: React.FC = () => {
   // Dev-friendly state switcher toggle
   const [viewState, setViewState] = useState<ViewState>('active')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [editingSlot, setEditingSlot] = useState<ClassItem | null>(null)
 
   // Pure live schedule engine model derived from system clock and timetable data
   const liveTimetableVm = useMemo(() => {
@@ -211,10 +214,27 @@ export const TodayPage: React.FC = () => {
             <Typography variant="micro" color="secondary" weight="semibold" className="uppercase tracking-wider">
               Today's Timeline
             </Typography>
-            <Timeline items={liveTimetableVm.timelineItems.length > 0 ? liveTimetableVm.timelineItems : viewModel.timeline} />
+            <Timeline
+              items={liveTimetableVm.timelineItems.length > 0 ? liveTimetableVm.timelineItems : viewModel.timeline}
+              onEditItem={(slot) => setEditingSlot(slot)}
+            />
           </section>
         )}
       </div>
+
+      {/* Attendance Dialog for editing completed timeline items */}
+      {editingSlot && (
+        <AttendanceDialog
+          isOpen={!!editingSlot}
+          onClose={() => setEditingSlot(null)}
+          subjectName={editingSlot.subject}
+          attendanceState={viewModel.attendanceState}
+          recordedRecordId={viewModel.recordedRecordId}
+          onMarkAttendance={handleMarkAttendance}
+          onUndoAttendance={handleUndoAttendance}
+          isSubmitting={isSubmitting}
+        />
+      )}
 
       {/* Dev-only Switcher Panel for testing state layouts */}
       {import.meta.env.DEV && (
