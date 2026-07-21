@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import Typography from '../../components/Typography'
 import Skeleton from '../../components/Skeleton'
 import useSubjects from './hooks/useSubjects'
 import { deriveSubjectsViewModel } from './utils/subjectViewModel'
+import { deriveSemesterInsightsViewModel } from './utils/attendanceInsightsViewModel'
 import SubjectsEmptyState from './components/SubjectsEmptyState'
 import SubjectList from './components/SubjectList'
+import AttendanceHealthCard from './components/AttendanceHealthCard'
 
 /**
  * Mobile-first dashboard layout for academic courses and overall attendance estimation.
@@ -14,6 +16,7 @@ export const SubjectsPage: React.FC = () => {
 
   // Derive unified presentation metrics
   const viewModel = deriveSubjectsViewModel(subjects)
+  const semesterInsights = useMemo(() => deriveSemesterInsightsViewModel(subjects), [subjects])
 
   // Loading skeleton block
   if (isLoading) {
@@ -107,6 +110,9 @@ export const SubjectsPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Semester Health Analytics */}
+      <AttendanceHealthCard insights={semesterInsights} />
 
       {/* Course Cards Grid */}
       <section className="space-y-3">
