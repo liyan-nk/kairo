@@ -322,10 +322,20 @@ CREATE TABLE proxy_reports (
     CONSTRAINT chk_report_count CHECK (report_count >= 1)
 );
 
--- 11. LOST FOUND ITEMS TABLE
+-- 11. PROXY REPORT VOTES TABLE (ANTI-SPAM CONSENSUS TRACKING)
+CREATE TABLE proxy_report_votes (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    proxy_report_id UUID NOT NULL REFERENCES proxy_reports(id) ON DELETE CASCADE,
+    voter_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uk_report_voter UNIQUE (proxy_report_id, voter_id)
+);
+
+-- 12. LOST FOUND ITEMS TABLE
 CREATE TABLE lost_found_items (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     reporter_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    claimed_by_id UUID REFERENCES users(id) ON DELETE SET NULL,
     title VARCHAR(150) NOT NULL,
     description TEXT NOT NULL,
     category VARCHAR(100) NOT NULL,
@@ -334,16 +344,21 @@ CREATE TABLE lost_found_items (
     status lost_found_status_enum NOT NULL DEFAULT 'LOST',
     validation_question TEXT,
     contact_info VARCHAR(150) NOT NULL,
+    claimed_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMPTZ
 );
 
 -- =============================================================================
--- INDEXES FOR HIGH PERFORMANCE
+-- INDEXES FOR HIGH PERFORMANCE & SOFT DELETE COMPATIBILITY
 -- =============================================================================
 
-CREATE INDEX idx_users_email ON users(email) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX uk_users_email_active ON users(email) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX uk_user_course_active ON enrollments(user_id, course_id) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX uk_user_slot_date_active ON attendance_logs(user_id, timetable_slot_id, log_date) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX uk_term_course_code_active ON courses(term_id, code) WHERE deleted_at IS NULL;
+
 CREATE INDEX idx_refresh_tokens_user ON refresh_tokens(user_id) WHERE revoked = FALSE;
 CREATE INDEX idx_enrollments_user ON enrollments(user_id) WHERE deleted_at IS NULL;
 CREATE INDEX idx_timetable_slots_enrollment ON timetable_slots(enrollment_id, day_of_week) WHERE deleted_at IS NULL;
